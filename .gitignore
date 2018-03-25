@@ -3,5 +3,5 @@
 .vscode/
 
 # nimファイルのみ追加
-src/
+src/*
 !src/*.nim
