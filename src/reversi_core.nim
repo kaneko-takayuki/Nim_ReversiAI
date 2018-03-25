@@ -5,6 +5,7 @@ proc init_board*(): tuple[black: uint64, white: uint64] =
   const init_board: tuple[black: uint64, white: uint64] = (b, w)
   result = init_board
   
+
 ## 石数のカウント
 ##
 ## @param x: uint64 bit-board
@@ -18,6 +19,7 @@ proc count*(x: uint64): int =
   t = (t and 0x0000_FFFF_0000_FFFF'u) + ((t shr 16) and 0x0000_FFFF_0000_FFFF'u)             # 32bit単位
   t = (t and 0x0000_0000_FFFF_FFFF'u) + ((t shr 32) and 0x0000_0000_FFFF_FFFF'u)             # 64bit単位
   result = t.int
+
 
 ## 着手bit-boardを求める
 ##
@@ -84,6 +86,7 @@ proc getPutBoard*(me: uint64, op: uint64): uint64 =
     tmp = tmp or (masked_op and (tmp shr 7))
   result = result or (blank and (tmp shr 7))
 
+
 ## 反転bit-boardを求める
 ##
 ## @param me: uint64 自分(着手する側)のbit-board
@@ -117,11 +120,12 @@ proc getRevBoard*(me: uint64, op: uint64, pos: uint64): uint64 =
     result = result or rev_cand
   
   # 上下
-  masked_op = 0x00ff_ffff_ffff_ff00'u  # 「上下0、それ以外1」でマスク掛け
+  masked_op = op and 0x00ff_ffff_ffff_ff00'u  # 「上下0、それ以外1」でマスク掛け
   # 上方向
   i = 1
   rev_cand = 0
   while ((pos shr (i * 8)) and masked_op) != 0:
+    echo ((pos shr (i * 8)) and masked_op)
     rev_cand = rev_cand or (pos shr (i * 8))
     inc(i)
   if ((pos shr (i * 8)) and me) != 0:
@@ -137,7 +141,7 @@ proc getRevBoard*(me: uint64, op: uint64, pos: uint64): uint64 =
     result = result or rev_cand
   
   # 斜め
-  masked_op = 0x007e_7e7e_7e7e_7e00'u  # 「上下左右0、それ以外1」でマスク掛け
+  masked_op = op and 0x007e_7e7e_7e7e_7e00'u  # 「上下左右0、それ以外1」でマスク掛け
   # 右上方向
   i = 1
   rev_cand = 0
@@ -173,3 +177,31 @@ proc getRevBoard*(me: uint64, op: uint64, pos: uint64): uint64 =
     inc(i)
   if ((pos shr (i * 7)) and me) != 0:
     result = result or rev_cand
+
+
+## 石を置く
+##
+## @param black: uint64 黒のbit-board
+## @param white: uint64 白のbit-board
+## @param pos_n: int 石を置くbit番号
+## @param blackTurn: bool 黒番ならtrue
+##
+## result: tuple[black: uint64, white: uint64] 新しい黒/白のbit-board
+proc putStone*(black: uint64, white: uint64, pos_n: int, blackTurn: bool): tuple[black: uint64, white: uint64] =
+  var rev: uint64
+  let pos: uint64 = 1'u shl pos_n
+  
+  # 反転bit-boardを求める
+  if blackTurn:
+    # 黒番
+    rev = getRevBoard(black, white, pos)
+    echo rev
+    let new_black = black xor (pos or rev)
+    let new_white = white xor rev
+    result = (black: new_black, white: new_white)
+  else:
+    # 白番
+    rev = getRevBoard(white, black, pos)
+    let new_white = white xor (pos or rev)
+    let new_black = black xor rev
+    result = (black: new_black, white: new_white)

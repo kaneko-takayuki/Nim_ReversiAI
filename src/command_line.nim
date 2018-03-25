@@ -26,7 +26,7 @@ proc display*(black: uint64, white: uint64, blackTurn: bool): void =
   echo "- - - - - - - - - "
   # 行毎に出力を行う
   for i in 0..<8:
-    i_row = fmt"{i}|.|.|.|.|.|.|.|.|"
+    i_row = fmt"{i+1}|.|.|.|.|.|.|.|.|"
     # 下位8桁にi行目のbit列が入る
     tmpBlack = black shr (i * 8)
     tmpWhite = white shr (i * 8)
@@ -34,9 +34,9 @@ proc display*(black: uint64, white: uint64, blackTurn: bool): void =
 
     # i行目のbit列を参照しつつ、黒がいたら'b'、白がいたら'w'を入れる
     for j in 0..<8:
-      if ((tmpBlack shr j) and 1'u) != 0: i_row[j * 2 + 1] = 'b'  # 黒が置かれている
-      if ((tmpWhite shr j) and 1'u) != 0: i_row[j * 2 + 1] = 'w'  # 白が置かれている
-      if ((tmpputBoard shr j) and 1'u) != 0: i_row[j * 2 + 1] = '#'  # 着手可能
+      if ((tmpBlack shr j) and 1'u) != 0: i_row[j * 2 + 2] = 'b'  # 黒が置かれている
+      if ((tmpWhite shr j) and 1'u) != 0: i_row[j * 2 + 2] = 'w'  # 白が置かれている
+      if ((tmpputBoard shr j) and 1'u) != 0: i_row[j * 2 + 2] = '#'  # 着手可能
     
     echo i_row
     echo "- - - - - - - - - "
