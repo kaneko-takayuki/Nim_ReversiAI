@@ -3,6 +3,9 @@ from reversi_core import getPutBoard
 from reversi_core import putStone
 from command_line import display
 from command_line import inputPos
+from command_line import outputEnd
+
+proc isEnd(black: uint64, white: uint64): bool
 
 ## ゲームを開始する
 proc start*(): void =
@@ -14,8 +17,9 @@ proc start*(): void =
     display(black, white, blackTurn)
 
     # 両者共置けない時、ゲームを終了
-    if isEnd:
-      
+    if isEnd(black, white):
+      outputEnd(black, white)
+      break
 
     # 石を置く座標を入力
     let (x, y) = inputPos()
