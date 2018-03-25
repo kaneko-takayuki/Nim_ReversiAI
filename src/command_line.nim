@@ -60,8 +60,7 @@ proc outputSkip*(blackTurn: bool): void =
   if blackTurn:
     echo "【黒番がスキップされました】"
   else:
-    echo "【黒番がスキップされました】"
-    
+    echo "【白番がスキップされました】"
 
 ## ゲームの結果を標準出力で表示
 ##
