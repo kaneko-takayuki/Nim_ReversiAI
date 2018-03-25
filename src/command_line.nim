@@ -1,4 +1,7 @@
+import strformat
 from reversi_core import getPutBoard
+
+proc convert_input(c: char): int
 
 ## コマンドラインに盤面の状態を標準出力する
 ##
@@ -18,9 +21,12 @@ proc display*(black: uint64, white: uint64, blackTurn: bool): void =
   else:
     putBoard = getPutBoard(white, black)
 
+  # ヘッダを出力
+  echo " |A|B|C|D|E|F|G|H|"
+  echo "- - - - - - - - - "
   # 行毎に出力を行う
   for i in 0..<8:
-    i_row = "........"
+    i_row = fmt"{i}|.|.|.|.|.|.|.|.|"
     # 下位8桁にi行目のbit列が入る
     tmpBlack = black shr (i * 8)
     tmpWhite = white shr (i * 8)
@@ -28,8 +34,44 @@ proc display*(black: uint64, white: uint64, blackTurn: bool): void =
 
     # i行目のbit列を参照しつつ、黒がいたら'b'、白がいたら'w'を入れる
     for j in 0..<8:
-      if ((tmpBlack shr j) and 1'u) != 0: i_row[j] = 'b'  # 黒が置かれている
-      if ((tmpWhite shr j) and 1'u) != 0: i_row[j] = 'w'  # 白が置かれている
-      if ((tmpputBoard shr j) and 1'u) != 0: i_row[j] = '#'  # 着手可能
+      if ((tmpBlack shr j) and 1'u) != 0: i_row[j * 2 + 1] = 'b'  # 黒が置かれている
+      if ((tmpWhite shr j) and 1'u) != 0: i_row[j * 2 + 1] = 'w'  # 白が置かれている
+      if ((tmpputBoard shr j) and 1'u) != 0: i_row[j * 2 + 1] = '#'  # 着手可能
     
     echo i_row
+    echo "- - - - - - - - - "
+
+## コマンドラインから入力を受け付ける
+##
+## result tuple(x座標, y座標)
+proc inputPos*(): tuple[x: int, y: int] =
+  echo "入力: "
+  let line: string = readLine(stdin)
+  let x: int = convert_input(line[0])
+  let y: int = convert_input(line[1])
+  result = (x: x, y: y)
+
+
+## 入力の座標を変換
+##
+## @param c: char x座標かy座標
+proc convert_input(c: char): int =
+  case c
+  of 'A', 'a', '1':
+    result = 1
+  of 'B', 'b', '2':
+    result = 2
+  of 'C', 'c', '3':
+    result = 3
+  of 'D', 'd', '4':
+    result = 4
+  of 'E', 'e', '5':
+    result = 5
+  of 'F', 'f', '6':
+    result = 6
+  of 'G', 'g', '7':
+    result = 7
+  of 'H', 'h', '8':
+    result = 8
+  else:
+    discard
