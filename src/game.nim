@@ -6,9 +6,9 @@ from command_line import inputPos
 from command_line import outputSkip
 from command_line import outputEnd
 
-proc enablePut(black: uint64, white: uint64, blackTurn: bool, pos_n: int): bool
+proc enablePut*(black: uint64, white: uint64, blackTurn: bool, pos_n: int): bool
 proc skipTurn(black: uint64, white: uint64, blackTurn: bool): bool
-proc isEnd(black: uint64, white: uint64): bool
+proc isEnd*(black: uint64, white: uint64): bool
 
 ## ゲームを開始する
 proc start*(): void =
@@ -54,7 +54,7 @@ proc start*(): void =
 ## @param pos: uint64 石を置くbit-board
 ##
 ## result: bool 石が置けるならtrue
-proc enablePut(black: uint64, white: uint64, blackTurn: bool, pos_n: int): bool =
+proc enablePut*(black: uint64, white: uint64, blackTurn: bool, pos_n: int): bool =
   let pos: uint64 = (1'u shl pos_n)
   if blackTurn:
     result = ((getPutBoard(black, white) and pos) != 0)
@@ -81,5 +81,5 @@ proc skipTurn(black: uint64, white: uint64, blackTurn: bool): bool =
 ## @param white: uint64 白bit-board
 ##
 ## result ゲームが終わる時はtrue
-proc isEnd(black: uint64, white: uint64): bool =
+proc isEnd*(black: uint64, white: uint64): bool =
   result = (getPutBoard(black, white) == 0) and (getPutBoard(white, black) == 0)
