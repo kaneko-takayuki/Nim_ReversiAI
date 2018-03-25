@@ -53,6 +53,16 @@ proc inputPos*(): tuple[x: int, y: int] =
   result = (x: x, y: y)
 
 
+## スキップした旨を標準出力で表示
+##
+## @param blackTurn: bool 黒番ならtrue
+proc outputSkip*(blackTurn: bool): void =
+  if blackTurn:
+    echo "【黒番がスキップされました】"
+  else:
+    echo "【黒番がスキップされました】"
+    
+
 ## ゲームの結果を標準出力で表示
 ##
 ## @param black: uint64 黒bit-board
