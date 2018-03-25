@@ -5,7 +5,6 @@ proc init_board*(): tuple[black: uint64, white: uint64] =
   const init_board: tuple[black: uint64, white: uint64] = (b, w)
   result = init_board
   
-
 ## 石数のカウント
 ##
 ## @param x: uint64 bit-board
@@ -20,7 +19,6 @@ proc count*(x: uint64): int =
   t = (t and 0x0000_0000_FFFF_FFFF'u) + ((t shr 32) and 0x0000_0000_FFFF_FFFF'u)             # 64bit単位
   result = t.int
 
-
 ## 着手bit-boardを求める
 ##
 ## @param me: uint64 自分(着手する側)のbit-board
@@ -32,11 +30,10 @@ proc getPutBoard*(me: uint64, op: uint64): uint64 =
   let blank: uint64 = not (me or op)  # 空白bit-board
   var masked_op, tmp: uint64          # 計算に使う
   
-  
   # 左右
   masked_op = op and 0x7e7e_7e7e_7e7e_7e7e'u  # 「左右0、それ以外1」でマスク掛け
   # 右方向に返せる位置を探す
-  tmp = masked_op and (me shl 1)             # 自分の石があり、そこから連続して相手の石があるbit-boardを求める
+  tmp = masked_op and (me shl 1)              # 自分の石があり、そこから連続して相手の石があるbit-boardを求める
   for _ in 0..<5:
     tmp = tmp or (masked_op and (tmp shl 1))
   result = result or (blank and (tmp shl 1))  # tmpの左側が空白なら、そこに着手可能
@@ -46,7 +43,6 @@ proc getPutBoard*(me: uint64, op: uint64): uint64 =
   for _ in 0..<5:
     tmp = tmp or (masked_op and (tmp shr 1))
   result = result or (blank and (tmp shr 1))
-  
   
   # 上下
   masked_op = op and 0x7e7e_7e7e_7e7e_7e7e'u  # 「左右0、それ以外1」でマスク掛け
@@ -61,7 +57,6 @@ proc getPutBoard*(me: uint64, op: uint64): uint64 =
   for _ in 0..<5:
     tmp = tmp or (masked_op and (tmp shr 8))
   result = result or (blank and (tmp shr 8))
-  
   
   # 斜め
   masked_op = op and 0x007e_7e7e_7e7e_7e00'u  # 「左右上下0、それ以外1」でマスク掛け
@@ -89,3 +84,92 @@ proc getPutBoard*(me: uint64, op: uint64): uint64 =
     tmp = tmp or (masked_op and (tmp shr 7))
   result = result or (blank and (tmp shr 7))
 
+## 反転bit-boardを求める
+##
+## @param me: uint64 自分(着手する側)のbit-board
+## @param op: uint64 相手(opposer)のbit-board
+## @param pos: uint64 石を置く場所を示すbit-board(置く場所のみ1、それ以外は0)
+proc getRevBoard*(me: uint64, op: uint64, pos: uint64): uint64 =
+  result = 0                          # 反転bit-board
+  let blank: uint64 = not (me or op)  # 空白bit-board
+  var 
+    i: int
+    masked_op, rev_cand: uint64       # 計算に使う
+
+  # 左右
+  masked_op = op and 0x7e7e_7e7e_7e7e_7e7e'u  # 「左右0、それ以外1」でマスク掛け
+  # 右方向
+  i = 1
+  rev_cand = 0
+  while ((pos shl i) and masked_op) != 0:
+    rev_cand = rev_cand or (pos shl i)
+    inc(i)
+  if ((pos shl i) and me) != 0:
+    result = result or rev_cand
+
+  # 左方向
+  i = 1
+  rev_cand = 0
+  while ((pos shr i) and masked_op) != 0:
+    rev_cand = rev_cand or (pos shr i)
+    inc(i)
+  if ((pos shr i) and me) != 0:
+    result = result or rev_cand
+  
+  # 上下
+  masked_op = 0x00ff_ffff_ffff_ff00'u  # 「上下0、それ以外1」でマスク掛け
+  # 上方向
+  i = 1
+  rev_cand = 0
+  while ((pos shr (i * 8)) and masked_op) != 0:
+    rev_cand = rev_cand or (pos shr (i * 8))
+    inc(i)
+  if ((pos shr (i * 8)) and me) != 0:
+    result = result or rev_cand
+  
+  # 下方向
+  i = 1
+  rev_cand = 0
+  while ((pos shl (i * 8)) and masked_op) != 0:
+    rev_cand = rev_cand or (pos shl (i * 8))
+    inc(i)
+  if ((pos shl (i * 8)) and me) != 0:
+    result = result or rev_cand
+  
+  # 斜め
+  masked_op = 0x007e_7e7e_7e7e_7e00'u  # 「上下左右0、それ以外1」でマスク掛け
+  # 右上方向
+  i = 1
+  rev_cand = 0
+  while ((pos shl (i * 7)) and masked_op) != 0:
+    rev_cand = rev_cand or (pos shl (i * 7))
+    inc(i)
+  if ((pos shl (i * 7)) and me) != 0:
+    result = result or rev_cand
+  
+  # 左上方向
+  i = 1
+  rev_cand = 0
+  while ((pos shl (i * 9)) and masked_op) != 0:
+    rev_cand = rev_cand or (pos shl (i * 9))
+    inc(i)
+  if ((pos shl (i * 9)) and me) != 0:
+    result = result or rev_cand
+  
+  # 右下方向
+  i = 1
+  rev_cand = 0
+  while ((pos shr (i * 9)) and masked_op) != 0:
+    rev_cand = rev_cand or (pos shr (i * 9))
+    inc(i)
+  if ((pos shr (i * 9)) and me) != 0:
+    result = result or rev_cand
+  
+  # 左下方向
+  i = 1
+  rev_cand = 0
+  while ((pos shr (i * 7)) and masked_op) != 0:
+    rev_cand = rev_cand or (pos shr (i * 7))
+    inc(i)
+  if ((pos shr (i * 7)) and me) != 0:
+    result = result or rev_cand
