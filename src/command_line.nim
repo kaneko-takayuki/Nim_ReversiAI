@@ -1,5 +1,6 @@
 import strformat
 from reversi_core import getPutBoard
+from reversi_core import count
 
 proc convert_input(c: char): int
 
@@ -50,6 +51,26 @@ proc inputPos*(): tuple[x: int, y: int] =
   let x: int = convert_input(line[0])
   let y: int = convert_input(line[1])
   result = (x: x, y: y)
+
+
+## ゲームの結果を標準出力で表示
+##
+## @param black: uint64 黒bit-board
+## @param white: uint64 白bit-board
+proc outputEnd*(black: uint64, white: uint64): void =
+  # 黒、白それぞれの石数をカウント
+  let
+    black_n: int = count(black)
+    white_n: int = count(white)
+
+  # 結果を出力
+  echo fmt"【{black_n} - {white_n}】"
+  if black_n > white_n:
+    echo "黒の勝ち!!"
+  elif black_n < white_n:
+    echo "白の勝ち!!"
+  else:
+    echo "引き分け!!"
 
 
 ## 入力の座標を変換

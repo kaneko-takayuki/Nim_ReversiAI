@@ -1,4 +1,5 @@
 from reversi_core import init_board
+from reversi_core import getPutBoard
 from reversi_core import putStone
 from command_line import display
 from command_line import inputPos
@@ -12,6 +13,10 @@ proc start*(): void =
     # 盤面の状態を出力
     display(black, white, blackTurn)
 
+    # 両者共置けない時、ゲームを終了
+    if isEnd:
+      
+
     # 石を置く座標を入力
     let (x, y) = inputPos()
 
@@ -23,3 +28,13 @@ proc start*(): void =
 
     # ターンを交代する
     blackTurn = not blackTurn
+
+
+## ゲームが終わるかどうかの判定
+##
+## @param black: uint64 黒bit-board
+## @param white: uint64 白bit-board
+##
+## result ゲームが終わる時はtrue
+proc isEnd(black: uint64, white: uint64): bool =
+  result = (getPutBoard(black, white) == 0) and (getPutBoard(white, black) == 0)
