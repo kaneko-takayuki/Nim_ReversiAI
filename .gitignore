@@ -1,1 +1,7 @@
+# エディタの設定ファイル
 .idea/
+.vscode/
+
+# nimファイルのみ追加
+src/
+!src/*.nim
