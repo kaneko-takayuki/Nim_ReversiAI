@@ -1,0 +1,12 @@
+{"compile":[
+["/Users/kaneko_takayuki/MyProgram/ReversiAI/src/nimcache/game.c", "clang -c  -w  -I/Users/kaneko_takayuki/.choosenim/toolchains/nim-0.18.0/lib -o /Users/kaneko_takayuki/MyProgram/ReversiAI/src/nimcache/game.o /Users/kaneko_takayuki/MyProgram/ReversiAI/src/nimcache/game.c"],
+["/Users/kaneko_takayuki/MyProgram/ReversiAI/src/nimcache/command_line.c", "clang -c  -w  -I/Users/kaneko_takayuki/.choosenim/toolchains/nim-0.18.0/lib -o /Users/kaneko_takayuki/MyProgram/ReversiAI/src/nimcache/command_line.o /Users/kaneko_takayuki/MyProgram/ReversiAI/src/nimcache/command_line.c"]
+],
+"link":[
+"/Users/kaneko_takayuki/MyProgram/ReversiAI/src/nimcache/game.o",
+"/Users/kaneko_takayuki/MyProgram/ReversiAI/src/nimcache/stdlib_system.o",
+"/Users/kaneko_takayuki/MyProgram/ReversiAI/src/nimcache/reversi_core.o",
+"/Users/kaneko_takayuki/MyProgram/ReversiAI/src/nimcache/command_line.o"
+],
+"linkcmd": "clang   -o src/game  /Users/kaneko_takayuki/MyProgram/ReversiAI/src/nimcache/game.o /Users/kaneko_takayuki/MyProgram/ReversiAI/src/nimcache/stdlib_system.o /Users/kaneko_takayuki/MyProgram/ReversiAI/src/nimcache/reversi_core.o /Users/kaneko_takayuki/MyProgram/ReversiAI/src/nimcache/command_line.o    -ldl"
+}

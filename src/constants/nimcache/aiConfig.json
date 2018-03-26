@@ -1,0 +1,10 @@
+{"compile":[
+["/Users/kaneko_takayuki/MyProgram/ReversiAI/src/constants/nimcache/aiConfig.c", "clang -c  -w  -I/Users/kaneko_takayuki/.choosenim/toolchains/nim-0.18.0/lib -o /Users/kaneko_takayuki/MyProgram/ReversiAI/src/constants/nimcache/aiConfig.o /Users/kaneko_takayuki/MyProgram/ReversiAI/src/constants/nimcache/aiConfig.c"],
+["/Users/kaneko_takayuki/MyProgram/ReversiAI/src/constants/nimcache/stdlib_system.c", "clang -c  -w  -I/Users/kaneko_takayuki/.choosenim/toolchains/nim-0.18.0/lib -o /Users/kaneko_takayuki/MyProgram/ReversiAI/src/constants/nimcache/stdlib_system.o /Users/kaneko_takayuki/MyProgram/ReversiAI/src/constants/nimcache/stdlib_system.c"]
+],
+"link":[
+"/Users/kaneko_takayuki/MyProgram/ReversiAI/src/constants/nimcache/aiConfig.o",
+"/Users/kaneko_takayuki/MyProgram/ReversiAI/src/constants/nimcache/stdlib_system.o"
+],
+"linkcmd": "clang   -o src/constants/aiConfig  /Users/kaneko_takayuki/MyProgram/ReversiAI/src/constants/nimcache/aiConfig.o /Users/kaneko_takayuki/MyProgram/ReversiAI/src/constants/nimcache/stdlib_system.o    -ldl"
+}
