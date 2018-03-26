@@ -1,0 +1,5 @@
+# 画像ファイルとgitignoreのホワイトリストを作る
+*
+!.gitignore
+!*/
+!*.png
