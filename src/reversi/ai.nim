@@ -2,10 +2,11 @@ import dto.searchResult
 from core import getPutBoard
 from core import getRevBoard
 from util.game import isEnd
+from evaluate import evaluateWithPosition
 from constants.aiConfig import DEPTH
 from constants.aiConfig import AI_INF
 
-proc evaluate(): int
+proc evaluate(me: uint64, op: uint64): int
 proc negaScout(me: uint64, op: uint64, alpha: int, beta: int, depth: int): SearchResult
 
 
@@ -44,11 +45,11 @@ proc choosePosN*(black: uint64, white: uint64, blackTurn: bool): int =
 proc negaScout(me: uint64, op: uint64, alpha: int, beta: int, depth: int): SearchResult =
   # 先読み深さが規定値に到達したので評価して返す
   if depth == 0:
-    return SearchResult(value: evaluate(), lastPosN: -1)
+    return SearchResult(value: evaluate(me, op), lastPosN: -1)
   
   # 両者が置けない状況になったらゲームは終了なので、石数で評価して返す
   if isEnd(me, op):
-    return SearchResult(value: evaluate(), lastPosN: -1)
+    return SearchResult(value: evaluate(me, op), lastPosN: -1)
   
   # 石が置けない時、パスして探索を続ける
   let enablePut = getPutBoard(me, op)
@@ -72,6 +73,8 @@ proc negaScout(me: uint64, op: uint64, alpha: int, beta: int, depth: int): Searc
       childMe: uint64 = me xor (pos or rev)
       childOp: uint64 = op xor rev
       childResult: SearchResult = -negaScout(childOp, childMe, -beta, -childAlpha, depth - 1)
+    
+    childResult.lastPosN = i
 
     # 枝刈り
     if beta <= childResult.value:
@@ -83,7 +86,6 @@ proc negaScout(me: uint64, op: uint64, alpha: int, beta: int, depth: int): Searc
     
     # 最大値の更新
     if result < childResult:
-      childResult.lastPosN = i
       result = childResult
 
 
@@ -92,5 +94,5 @@ proc negaScout(me: uint64, op: uint64, alpha: int, beta: int, depth: int): Searc
   *概要:
     - 盤面の評価値を計算
 ]#
-proc evaluate(): int =
-  result = 1
+proc evaluate(me: uint64, op: uint64): int =
+  result = evaluateWithPosition(me, op)
