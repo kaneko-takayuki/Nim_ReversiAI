@@ -14,14 +14,14 @@ when isMainModule:
   for kind, key, val in getopt():
     case kind
     of cmdLongOption:
-      if key == "black" and val == "player": blackInput = inputPosN
+      if key == "black" and val == "person": blackInput = inputPosN
       if key == "black" and val == "ai": blackInput = choosePosN
-      if key == "white" and val == "player": whiteInput = inputPosN
+      if key == "white" and val == "person": whiteInput = inputPosN
       if key == "white" and val == "ai": whiteInput = choosePosN
     of cmdShortOption:
-      if key == "b" and val == "player": blackInput = inputPosN
+      if key == "b" and val == "person": blackInput = inputPosN
       if key == "b" and val == "ai": blackInput = choosePosN
-      if key == "w" and val == "player": whiteInput = inputPosN
+      if key == "w" and val == "person": whiteInput = inputPosN
       if key == "w" and val == "ai": whiteInput = choosePosN
     of cmdArgument, cmdEnd:
       discard
