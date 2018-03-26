@@ -2,11 +2,11 @@ from reversi.core import init_board
 from reversi.core import getPutBoard
 from reversi.core import putStone
 from command_line import display
-from command_line import inputPos
+from command_line import inputPosN
 from command_line import outputSkip
 from command_line import outputEnd
 
-proc enablePut*(black: uint64, white: uint64, blackTurn: bool, pos_n: int): bool
+proc enablePut*(black: uint64, white: uint64, blackTurn: bool, posN: int): bool
 proc skipTurn(black: uint64, white: uint64, blackTurn: bool): bool
 proc isEnd*(black: uint64, white: uint64): bool
 
@@ -14,7 +14,7 @@ proc isEnd*(black: uint64, white: uint64): bool
   *概要:
     - ゲームを開始
 ]#
-proc gameStart*(): void =
+proc gameStart*(blackInput: proc: int, whiteInput: proc: int) {. noReturn, procvar .} =
   var (black, white) = init_board()  # 黒白の盤面の状態
   var blackTurn: bool = true         # 手番(黒ならtrue)
 
@@ -34,16 +34,15 @@ proc gameStart*(): void =
       continue
 
     # 有効な場所が入力されるまで、石を置く場所を標準入力で受け取る
-    var x, y, pos_n: int
+    var posN: int
     while true:
-      (x, y) = inputPos()
-      pos_n = (x - 1) + ((y - 1) * 8)
-      if enablePut(black, white, blackTurn, pos_n):
+      posN = inputPosN()
+      if enablePut(black, white, blackTurn, posN):
         break
       echo "【!入力された場所は有効ではありません!】"
 
     # 石を置く
-    (black, white) = putStone(black, white, pos_n, blackTurn)
+    (black, white) = putStone(black, white, posN, blackTurn)
 
     # ターンを交代する
     blackTurn = not blackTurn
@@ -51,17 +50,17 @@ proc gameStart*(): void =
 
 #[
   *概要:
-    - マス番号{pos_n}に石が置けるか判定
+    - マス番号{posN}に石が置けるか判定
   *パラメータ:
     - black<uint64>:   黒bit-board
     - white<uint64>:   白bit-board
     - blackTurn<bool>: 黒番ならtrue
-    - pos_n<int>:      石を置くマス番号
+    - posN<int>:      石を置くマス番号
   *返り値<bool>:
     - 石が置ければtrue、そうでなければfalse
 ]#
-proc enablePut*(black: uint64, white: uint64, blackTurn: bool, pos_n: int): bool =
-  let pos: uint64 = (1'u shl pos_n)
+proc enablePut*(black: uint64, white: uint64, blackTurn: bool, posN: int): bool =
+  let pos: uint64 = (1'u shl posN)
   if blackTurn:
     result = ((getPutBoard(black, white) and pos) != 0)
   else:

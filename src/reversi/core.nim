@@ -4,7 +4,7 @@ proc init_board*(): tuple[black: uint64, white: uint64] =
   const w: uint64 = (1 shl 27) or (1 shl 36)
   const init_board: tuple[black: uint64, white: uint64] = (b, w)
   result = init_board
-  
+
 
 #[
   *概要:
@@ -99,7 +99,7 @@ proc getPutBoard*(me: uint64, op: uint64): uint64 =
   *パラメータ:
     - me<uint64>: 自分のbit-board
     - op<uint64>: 相手のbit-board
-    - pos_n<int>: 石を置くマス番号
+    - pos<int>:   石を置くマスbit-board
   *返り値<uint64>:
     - 反転bit-board
 ]#
@@ -201,9 +201,9 @@ proc getRevBoard*(me: uint64, op: uint64, pos: uint64): uint64 =
   *返り値<tuple[black: uint64, white: uint64]>:
     - 石を置いた結果の新しいbit-board
 ]#
-proc putStone*(black: uint64, white: uint64, pos_n: int, blackTurn: bool): tuple[black: uint64, white: uint64] =
+proc putStone*(black: uint64, white: uint64, posN: int, blackTurn: bool): tuple[black: uint64, white: uint64] =
   var rev: uint64
-  let pos: uint64 = 1'u shl pos_n
+  let pos: uint64 = 1'u shl posN
   
   # 反転bit-boardを求める
   if blackTurn:

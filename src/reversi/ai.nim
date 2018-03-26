@@ -2,9 +2,29 @@ import dto.searchResult
 from core import getPutBoard
 from core import getRevBoard
 from util.game import isEnd
+from constants.aiConfig import DEPTH
 
 proc evaluate(): int
+proc negaScout(me: uint64, op: uint64, alpha: int, beta: int, depth: int): SearchResult
 
+
+#[
+  *概要:
+    - AIに次の手を選ばせる
+  *パラメータ:
+    - black<uint64>:   黒bit-board
+    - white<uint64>:   白bit-board
+    - blackTurn<bool>: 黒番ならtrue
+  *返り値<int>:
+    - 選択した手を出力
+]#
+proc chooseMove*(black: uint64, white: uint64, blackTurn: bool): int =
+  if blackTurn:
+    let searchResult: SearchResult = negaScout(black, white, -Inf.int, Inf.int, DEPTH)
+    result = searchResult.posN
+  else:
+    let searchResult: SearchResult = negaScout(white, black, -Inf.int, Inf.int, DEPTH)
+    result = searchResult.posN
 
 #[
   *概要:
@@ -17,16 +37,16 @@ proc evaluate(): int
     - depth<int>: 先読みする深さ
   *返り値<SearchResult>:
     - 探索した結果
-    - 先読みした結果の最大評価値(value)、最適な手(pos)の2つのフィールドがある
+    - 先読みした結果の最大評価値(value)、最適な手(posN)の2つのフィールドがある
 ]#
 proc negaScout(me: uint64, op: uint64, alpha: int, beta: int, depth: int): SearchResult =
   # 先読み深さが規定値に到達したので評価して返す
   if depth == 0:
-    return SearchResult(value: evaluate(), pos: -1)
+    return SearchResult(value: evaluate(), posN: -1)
   
   # 両者が置けない状況になったらゲームは終了なので、石数で評価して返す
   if isEnd(me, op):
-    return SearchResult(value: evaluate(), pos: -1)
+    return SearchResult(value: evaluate(), posN: -1)
   
   # 石が置けない時、パスして探索を続ける
   let enablePut = getPutBoard(me, op)
@@ -34,7 +54,7 @@ proc negaScout(me: uint64, op: uint64, alpha: int, beta: int, depth: int): Searc
     return -negaScout(op, me, -beta, -alpha, depth)
   
   # 探索で使う
-  result = SearchResult(value: Inf.int, pos: -1)  # 先読みした結果、評価の最大値とその時の手を返す
+  result = SearchResult(value: Inf.int, posN: -1)  # 先読みした結果、評価の最大値とその時の手を返す
   var childAlpha: int = alpha
 
   # 置ける場所について順番にシミュレーション

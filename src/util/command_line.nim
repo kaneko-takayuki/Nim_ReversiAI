@@ -51,18 +51,16 @@ proc display*(black: uint64, white: uint64, blackTurn: bool): void =
   *概要:
     - 置く場所を標準入力で受け付ける
   *パラメータ:
-    - なし
-  *返り値<tuple[x: int, y: int]>:
-    - 入力された場所を返す
-    - x, yは0〜7のいずれかを取る
-    - xは横軸、yは縦軸を示す
+    - 
+  *返り値<int>:
+    - 入力されたマス番号を返す
 ]#
-proc inputPos*(): tuple[x: int, y: int] =
+proc inputPosN*(): int =
   echo "入力: "
   let line: string = readLine(stdin)
   let x: int = convert_input(line[0])
   let y: int = convert_input(line[1])
-  result = (x: x, y: y)
+  result = ((y - 1) * 8) + (x - 1)
 
 
 #[
