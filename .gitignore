@@ -1,7 +1,0 @@
-# nimファイルのみ管理下に置く
-*
-!.gitignore
-!*/
-!*.nim
-!nim.cfg
-!README.md
