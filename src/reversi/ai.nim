@@ -3,6 +3,7 @@ from core import getPutBoard
 from core import getRevBoard
 from util.game import isEnd
 from evaluate import evaluateWithPosition
+from evaluate import evaluateWithPutN
 from constants.aiConfig import DEPTH
 from constants.aiConfig import AI_INF
 
@@ -95,4 +96,4 @@ proc negaScout(me: uint64, op: uint64, alpha: int, beta: int, depth: int): Searc
     - 盤面の評価値を計算
 ]#
 proc evaluate(me: uint64, op: uint64): int =
-  result = evaluateWithPosition(me, op)
+  result = evaluateWithPosition(me, op) + 10 * evaluateWithPutN(me, op)
