@@ -53,7 +53,7 @@ proc getPutBoard*(me: uint64, op: uint64): uint64 =
   result = result or (blank and (tmp shr 1))
   
   # 上下
-  masked_op = op and 0x7e7e_7e7e_7e7e_7e7e'u  # 「左右0、それ以外1」でマスク掛け
+  masked_op = op and 0x00ff_ffff_ffff_ff00'u  # 「左右0、それ以外1」でマスク掛け
   # 上方向
   tmp = masked_op and (me shl 8)
   for _ in 0..<5:
