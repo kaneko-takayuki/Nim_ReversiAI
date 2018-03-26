@@ -4,13 +4,17 @@ from reversi.core import count
 
 proc convert_input(c: char): int
 
-## コマンドラインに盤面の状態を標準出力する
-##
-## @param black: uint64 黒bit-board
-## @param white: uint64 白bit-board
-## @param blackTurn: bool 黒のターンならtrue
-##
-## result なし
+
+#[
+  *概要:
+    - 盤面状態を標準出力
+  *パラメータ:
+    - black<uint64>:   黒bit-board
+    - white<uint64>:   白bit-board
+    - blackTurn<bool>: 黒番ならtrue
+  *返り値<void>:
+    - なし
+]#
 proc display*(black: uint64, white: uint64, blackTurn: bool): void =
   var 
     i_row: string
@@ -42,9 +46,17 @@ proc display*(black: uint64, white: uint64, blackTurn: bool): void =
     echo i_row
     echo "- - - - - - - - - "
 
-## コマンドラインから入力を受け付ける
-##
-## result tuple(x座標, y座標)
+
+#[
+  *概要:
+    - 置く場所を標準入力で受け付ける
+  *パラメータ:
+    - なし
+  *返り値<tuple[x: int, y: int]>:
+    - 入力された場所を返す
+    - x, yは0〜7のいずれかを取る
+    - xは横軸、yは縦軸を示す
+]#
 proc inputPos*(): tuple[x: int, y: int] =
   echo "入力: "
   let line: string = readLine(stdin)
@@ -53,19 +65,30 @@ proc inputPos*(): tuple[x: int, y: int] =
   result = (x: x, y: y)
 
 
-## スキップした旨を標準出力で表示
-##
-## @param blackTurn: bool 黒番ならtrue
+#[
+  *概要:
+    - 標準出力でスキップした旨を表示
+  *パラメータ:
+    - blackTurn<bool>: 黒番ならtrue
+  *返り値<void>:
+    - なし
+]#
 proc outputSkip*(blackTurn: bool): void =
   if blackTurn:
     echo "【黒番がスキップされました】"
   else:
     echo "【白番がスキップされました】"
 
-## ゲームの結果を標準出力で表示
-##
-## @param black: uint64 黒bit-board
-## @param white: uint64 白bit-board
+
+#[
+  *概要:
+    - 標準出力でゲーム結果を表示
+  *パラメータ:
+    - black<uint64>: 黒bit-board
+    - white<uint64>: 白bit-board
+  *返り値<void>:
+    - なし
+]#
 proc outputEnd*(black: uint64, white: uint64): void =
   # 黒、白それぞれの石数をカウント
   let
@@ -82,9 +105,18 @@ proc outputEnd*(black: uint64, white: uint64): void =
     echo "引き分け!!"
 
 
-## 入力の座標を変換
-##
-## @param c: char x座標かy座標
+#[
+  *概要:
+    - 入力された座標を変換
+  *パラメータ:
+    - c<char>: 変換元も文字
+  *返り値<int>:
+    - 変換後の数値
+    - 例
+      - 'A' -> 1
+      - 'f' -> 6
+      - '8' -> 8
+]#
 proc convert_input(c: char): int =
   case c
   of 'A', 'a', '1':

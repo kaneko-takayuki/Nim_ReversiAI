@@ -6,11 +6,14 @@ proc init_board*(): tuple[black: uint64, white: uint64] =
   result = init_board
   
 
-## 石数のカウント
-##
-## @param x: uint64 bit-board
-##
-## result 石の数
+#[
+  *概要:
+    - 石数をカウント
+  *パラメータ:
+    - x<uint64>: カウントするbit-board
+  *返り値<int>:
+    - 石数
+]#
 proc count*(x: uint64): int =
   var t: uint64 = (x and 0x5555_5555_5555_5555'u) + ((x shr 1) and 0x5555_5555_5555_5555'u)  # 2bit単位
   t = (t and 0x3333_3333_3333_3333'u) + ((t shr 2) and 0x3333_3333_3333_3333'u)              # 4bit単位
@@ -21,12 +24,15 @@ proc count*(x: uint64): int =
   result = t.int
 
 
-## 着手bit-boardを求める
-##
-## @param me: uint64 自分(着手する側)のbit-board
-## @param op: uint64 相手(opposer)のbitboard
-##
-## result 着手bit-board(着手できる位置が立っているbit-board)
+#[
+  *概要:
+    - 着手bit-boardを求める(着手できる位置が1のbit-board)
+  *パラメータ:
+    - me<uint64>: 自分のbit-board
+    - op<uint64>: 相手のbit-board
+  *返り値<uint64>:
+    - 着手bit-board
+]#
 proc getPutBoard*(me: uint64, op: uint64): uint64 =
   result = 0                          # 着手可能bit-board
   let blank: uint64 = not (me or op)  # 空白bit-board
@@ -87,11 +93,16 @@ proc getPutBoard*(me: uint64, op: uint64): uint64 =
   result = result or (blank and (tmp shr 7))
 
 
-## 反転bit-boardを求める
-##
-## @param me: uint64 自分(着手する側)のbit-board
-## @param op: uint64 相手(opposer)のbit-board
-## @param pos: uint64 石を置く場所を示すbit-board(置く場所のみ1、それ以外は0)
+#[
+  *概要:
+    - 反転bit-boardを求める(石を置いた結果、反転する箇所が1のbit-board)
+  *パラメータ:
+    - me<uint64>: 自分のbit-board
+    - op<uint64>: 相手のbit-board
+    - pos_n<int>: 石を置くマス番号
+  *返り値<uint64>:
+    - 反転bit-board
+]#
 proc getRevBoard*(me: uint64, op: uint64, pos: uint64): uint64 =
   result = 0                          # 反転bit-board
   let blank: uint64 = not (me or op)  # 空白bit-board
@@ -179,14 +190,17 @@ proc getRevBoard*(me: uint64, op: uint64, pos: uint64): uint64 =
     result = result or rev_cand
 
 
-## 石を置く
-##
-## @param black: uint64 黒のbit-board
-## @param white: uint64 白のbit-board
-## @param pos_n: int 石を置くbit番号
-## @param blackTurn: bool 黒番ならtrue
-##
-## result: tuple[black: uint64, white: uint64] 新しい黒/白のbit-board
+#[
+  *概要:
+    - 石を置く
+  *パラメータ:
+    - black<uint64>:   黒bit-board
+    - white<uint64>:   白bit-board
+    - blackTurn<bool>: 黒番ならtrue
+    - pos_n<int>:      石を置くマス番号
+  *返り値<tuple[black: uint64, white: uint64]>:
+    - 石を置いた結果の新しいbit-board
+]#
 proc putStone*(black: uint64, white: uint64, pos_n: int, blackTurn: bool): tuple[black: uint64, white: uint64] =
   var rev: uint64
   let pos: uint64 = 1'u shl pos_n

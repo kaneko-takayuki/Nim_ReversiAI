@@ -10,7 +10,10 @@ proc enablePut*(black: uint64, white: uint64, blackTurn: bool, pos_n: int): bool
 proc skipTurn(black: uint64, white: uint64, blackTurn: bool): bool
 proc isEnd*(black: uint64, white: uint64): bool
 
-## ゲームを開始する
+#[
+  *概要:
+    - ゲームを開始
+]#
 proc gameStart*(): void =
   var (black, white) = init_board()  # 黒白の盤面の状態
   var blackTurn: bool = true         # 手番(黒ならtrue)
@@ -46,14 +49,17 @@ proc gameStart*(): void =
     blackTurn = not blackTurn
 
 
-## posに石が置けるかどうか判定
-##
-## @param black: uint64 黒bit-board
-## @param white: uint64 白bit-board
-## @param blackTurn: bool 黒番ならtrue
-## @param pos: uint64 石を置くbit-board
-##
-## result: bool 石が置けるならtrue
+#[
+  *概要:
+    - マス番号{pos_n}に石が置けるか判定
+  *パラメータ:
+    - black<uint64>:   黒bit-board
+    - white<uint64>:   白bit-board
+    - blackTurn<bool>: 黒番ならtrue
+    - pos_n<int>:      石を置くマス番号
+  *返り値<bool>:
+    - 石が置ければtrue、そうでなければfalse
+]#
 proc enablePut*(black: uint64, white: uint64, blackTurn: bool, pos_n: int): bool =
   let pos: uint64 = (1'u shl pos_n)
   if blackTurn:
@@ -62,24 +68,31 @@ proc enablePut*(black: uint64, white: uint64, blackTurn: bool, pos_n: int): bool
     result = ((getPutBoard(white, black) and pos) != 0)
 
 
-## 手番をスキップするかどうか判定(置ける場所が無い時、手番をスキップする)
-##
-## @param black: uint64 黒bit-board
-## @param white: uint64 白bit-board
-## @param blackTurn: bool 黒番ならtrue、白番ならfalse
-##
-## result: bool スキップするならtrue
+#[
+  *概要:
+    - 手番のスキップ判定
+  *パラメータ:
+    - black<uint64>:   黒bit-board
+    - white<uint64>:   白bit-board
+    - blackTurn<bool>: 黒番ならtrue
+  *返り値<bool>:
+    - 置ける場所が無くてスキップするならtrue
+]#
 proc skipTurn(black: uint64, white: uint64, blackTurn: bool): bool =
   if blackTurn:
     result = (getPutBoard(black, white) == 0)
   else:
     result = (getPutBoard(white, black) == 0)
 
-## ゲームが終わるかどうか判定
-##
-## @param black: uint64 黒bit-board
-## @param white: uint64 白bit-board
-##
-## result ゲームが終わる時はtrue
+
+#[
+  *概要:
+    - ゲームの終了判定
+  *パラメータ:
+    - black<uint64>: 黒bit-board
+    - white<uint64>: 白bit-board
+  *返り値<bool>:
+    - どちらも置けず、ゲームが終了する時はtrue、それ以外はfalse
+]#
 proc isEnd*(black: uint64, white: uint64): bool =
   result = (getPutBoard(black, white) == 0) and (getPutBoard(white, black) == 0)

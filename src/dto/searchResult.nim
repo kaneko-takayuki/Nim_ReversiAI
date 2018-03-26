@@ -1,3 +1,7 @@
+#[
+  *概要:
+    - 先読み探索を行なった結果
+]#
 type
   SearchResult* = ref object of RootObj
     value*: int  # 手の最大値

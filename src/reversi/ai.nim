@@ -5,16 +5,20 @@ from util.game import isEnd
 
 proc evaluate(): int
 
-## NegaScout法で先読みした最大値を求める
-## TODO: まだ今の所、NegaMaxになっている
-##
-## @param me: uint64 自分bit-board
-## @param op: uint64 相手bit-board
-## @param alpha: uint64 枝刈り用1
-## @param beta: uint64 枝刈り用2
-## @param depth: 先読みする深さ
-##
-## result: int 現盤面から先読みした最大値
+
+#[
+  *概要:
+    - NegaScout法で先読みし、次の手を決める
+  *パラメータ:
+    - me<uint64>: 自分のbit-board
+    - op<uint64>: 相手のbit-board
+    - alpha<int>: 枝刈り用1
+    - beta<int>:  枝刈り用2
+    - depth<int>: 先読みする深さ
+  *返り値<SearchResult>:
+    - 探索した結果
+    - 先読みした結果の最大評価値(value)、最適な手(pos)の2つのフィールドがある
+]#
 proc negaScout(me: uint64, op: uint64, alpha: int, beta: int, depth: int): SearchResult =
   # 先読み深さが規定値に到達したので評価して返す
   if depth == 0:
@@ -61,5 +65,9 @@ proc negaScout(me: uint64, op: uint64, alpha: int, beta: int, depth: int): Searc
 
 
 ## TODO: 評価関数はまだ仮
+#[
+  *概要:
+    - 盤面の評価値を計算
+]#
 proc evaluate(): int =
   result = 1
