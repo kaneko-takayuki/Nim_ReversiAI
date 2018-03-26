@@ -1,6 +1,6 @@
-from reversi_core import init_board
-from reversi_core import getPutBoard
-from reversi_core import putStone
+from reversi.core import init_board
+from reversi.core import getPutBoard
+from reversi.core import putStone
 from command_line import display
 from command_line import inputPos
 from command_line import outputSkip
@@ -11,7 +11,7 @@ proc skipTurn(black: uint64, white: uint64, blackTurn: bool): bool
 proc isEnd*(black: uint64, white: uint64): bool
 
 ## ゲームを開始する
-proc start*(): void =
+proc gameStart*(): void =
   var (black, white) = init_board()  # 黒白の盤面の状態
   var blackTurn: bool = true         # 手番(黒ならtrue)
 

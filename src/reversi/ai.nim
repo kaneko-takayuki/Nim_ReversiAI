@@ -1,7 +1,7 @@
 import dto.searchResult
-from reversi_core import getPutBoard
-from reversi_core import getRevBoard
-from game import isEnd
+from core import getPutBoard
+from core import getRevBoard
+from util.game import isEnd
 
 proc evaluate(): int
 
