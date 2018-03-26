@@ -5,6 +5,7 @@ from command_line import display
 from command_line import inputPosN
 from command_line import outputSkip
 from command_line import outputEnd
+import strformat
 
 proc enablePut*(black: uint64, white: uint64, blackTurn: bool, posN: int): bool
 proc skipTurn(black: uint64, white: uint64, blackTurn: bool): bool
@@ -14,7 +15,8 @@ proc isEnd*(black: uint64, white: uint64): bool
   *概要:
     - ゲームを開始
 ]#
-proc gameStart*(blackInput: proc: int, whiteInput: proc: int) {. noReturn, procvar .} =
+proc gameStart*(blackInput: proc(black: uint64, white: uint64, blackTurn: bool): int, 
+                whiteInput: proc(black: uint64, white: uint64, blackTurn: bool): int): void {. procvar .} =
   var (black, white) = init_board()  # 黒白の盤面の状態
   var blackTurn: bool = true         # 手番(黒ならtrue)
 
@@ -36,7 +38,14 @@ proc gameStart*(blackInput: proc: int, whiteInput: proc: int) {. noReturn, procv
     # 有効な場所が入力されるまで、石を置く場所を標準入力で受け取る
     var posN: int
     while true:
-      posN = inputPosN()
+      # 黒番か白番かで入力関数が変わる(Player用とか、AI用とか)
+      if blackTurn:
+        posN = blackInput(black, white, blackTurn)
+      else:
+        posN = whiteInput(black, white, blackTurn)
+
+      echo fmt"posN: {posN}"
+
       if enablePut(black, white, blackTurn, posN):
         break
       echo "【!入力された場所は有効ではありません!】"

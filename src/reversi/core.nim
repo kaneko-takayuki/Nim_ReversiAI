@@ -136,7 +136,6 @@ proc getRevBoard*(me: uint64, op: uint64, pos: uint64): uint64 =
   i = 1
   rev_cand = 0
   while ((pos shr (i * 8)) and masked_op) != 0:
-    echo ((pos shr (i * 8)) and masked_op)
     rev_cand = rev_cand or (pos shr (i * 8))
     inc(i)
   if ((pos shr (i * 8)) and me) != 0:
@@ -209,7 +208,6 @@ proc putStone*(black: uint64, white: uint64, posN: int, blackTurn: bool): tuple[
   if blackTurn:
     # 黒番
     rev = getRevBoard(black, white, pos)
-    echo rev
     let new_black = black xor (pos or rev)
     let new_white = white xor rev
     result = (black: new_black, white: new_white)
