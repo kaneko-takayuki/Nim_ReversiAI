@@ -42,54 +42,78 @@ proc getPutBoard*(me: uint64, op: uint64): uint64 =
   masked_op = op and 0x7e7e_7e7e_7e7e_7e7e'u  # 「左右0、それ以外1」でマスク掛け
   # 右方向に返せる位置を探す
   tmp = masked_op and (me shl 1)              # 自分の石があり、そこから連続して相手の石があるbit-boardを求める
-  for _ in 0..<5:
-    tmp = tmp or (masked_op and (tmp shl 1))
+  tmp = tmp or (masked_op and (tmp shl 1))    # 4回分右にズラしつつ、ひっくり返る候補を求める(for文で回すより、直書きした方が速い？)
+  tmp = tmp or (masked_op and (tmp shl 1))
+  tmp = tmp or (masked_op and (tmp shl 1))
+  tmp = tmp or (masked_op and (tmp shl 1))
+  tmp = tmp or (masked_op and (tmp shl 1))
   result = result or (blank and (tmp shl 1))  # tmpの左側が空白なら、そこに着手可能
   
   # 左方向
   tmp = masked_op and (me shr 1)
-  for _ in 0..<5:
-    tmp = tmp or (masked_op and (tmp shr 1))
+  tmp = tmp or (masked_op and (tmp shr 1))
+  tmp = tmp or (masked_op and (tmp shr 1))
+  tmp = tmp or (masked_op and (tmp shr 1))
+  tmp = tmp or (masked_op and (tmp shr 1))
+  tmp = tmp or (masked_op and (tmp shr 1))
   result = result or (blank and (tmp shr 1))
   
   # 上下
   masked_op = op and 0x00ff_ffff_ffff_ff00'u  # 「左右0、それ以外1」でマスク掛け
   # 上方向
   tmp = masked_op and (me shl 8)
-  for _ in 0..<5:
-    tmp = tmp or (masked_op and (tmp shl 8))
+  tmp = tmp or (masked_op and (tmp shl 8))
+  tmp = tmp or (masked_op and (tmp shl 8))
+  tmp = tmp or (masked_op and (tmp shl 8))
+  tmp = tmp or (masked_op and (tmp shl 8))
+  tmp = tmp or (masked_op and (tmp shl 8))
   result = result or (blank and (tmp shl 8))
   
   # 下方向
   tmp = masked_op and (me shr 8)
-  for _ in 0..<5:
-    tmp = tmp or (masked_op and (tmp shr 8))
+  tmp = tmp or (masked_op and (tmp shr 8))
+  tmp = tmp or (masked_op and (tmp shr 8))
+  tmp = tmp or (masked_op and (tmp shr 8))
+  tmp = tmp or (masked_op and (tmp shr 8))
+  tmp = tmp or (masked_op and (tmp shr 8))
   result = result or (blank and (tmp shr 8))
   
   # 斜め
   masked_op = op and 0x007e_7e7e_7e7e_7e00'u  # 「左右上下0、それ以外1」でマスク掛け
   # 右上方向
   tmp = masked_op and (me shl 7)
-  for _ in 0..<5:
-    tmp = tmp or (masked_op and (tmp shl 7))
+  tmp = tmp or (masked_op and (tmp shl 7))
+  tmp = tmp or (masked_op and (tmp shl 7))
+  tmp = tmp or (masked_op and (tmp shl 7))
+  tmp = tmp or (masked_op and (tmp shl 7))
+  tmp = tmp or (masked_op and (tmp shl 7))
   result = result or (blank and (tmp shl 7))
 
   # 左上方向
   tmp = masked_op and (me shl 9)
-  for _ in 0..<5:
-    tmp = tmp or (masked_op and (tmp shl 9))
+  tmp = tmp or (masked_op and (tmp shl 9))
+  tmp = tmp or (masked_op and (tmp shl 9))
+  tmp = tmp or (masked_op and (tmp shl 9))
+  tmp = tmp or (masked_op and (tmp shl 9))
+  tmp = tmp or (masked_op and (tmp shl 9))
   result = result or (blank and (tmp shl 9))
 
   # 右下方向
   tmp = masked_op and (me shr 9)
-  for _ in 0..<5:
-    tmp = tmp or (masked_op and (tmp shr 9))
+  tmp = tmp or (masked_op and (tmp shr 9))
+  tmp = tmp or (masked_op and (tmp shr 9))
+  tmp = tmp or (masked_op and (tmp shr 9))
+  tmp = tmp or (masked_op and (tmp shr 9))
+  tmp = tmp or (masked_op and (tmp shr 9))
   result = result or (blank and (tmp shr 9))
 
   # 左下方向
   tmp = masked_op and (me shr 7)
-  for _ in 0..<5:
-    tmp = tmp or (masked_op and (tmp shr 7))
+  tmp = tmp or (masked_op and (tmp shr 7))
+  tmp = tmp or (masked_op and (tmp shr 7))
+  tmp = tmp or (masked_op and (tmp shr 7))
+  tmp = tmp or (masked_op and (tmp shr 7))
+  tmp = tmp or (masked_op and (tmp shr 7))
   result = result or (blank and (tmp shr 7))
 
 
