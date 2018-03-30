@@ -1,15 +1,14 @@
+import times
 import dto.searchResult
-from core import getPutBoard
-from core import getRevBoard
+from core import getPutBoard, getRevBoard
 from util.game import isEnd
-from evaluate import evaluateWithPosition
-from evaluate import evaluateWithPutN
-from constants.aiConfig import DEPTH
-from constants.aiConfig import AI_INF
+from evaluate import evaluateWithPosition, evaluateWithPutN
+from constants.aiConfig import AI_INF, DEPTH
 
 proc evaluate(me: uint64, op: uint64): int
 proc negaScout(me: uint64, op: uint64, alpha: int, beta: int, depth: int): SearchResult
 
+var nodeN: int = 0
 
 #[
   *概要:
@@ -22,10 +21,15 @@ proc negaScout(me: uint64, op: uint64, alpha: int, beta: int, depth: int): Searc
     - 選択した手を出力
 ]#
 proc choosePosN*(black: uint64, white: uint64, blackTurn: bool): int =
+  nodeN = 0
   let
     me: uint64 = if blackTurn: black else: white
     op: uint64 = if blackTurn: white else: black
+    start_time = cpuTime()
     searchResult: SearchResult = negaScout(me, op, -AI_INF, AI_INF, DEPTH)
+    end_time = cpuTime()
+  
+  echo "NPS: ", nodeN.float / (end_time - start_time)
   
   result = searchResult.lastPosN
 
@@ -44,6 +48,9 @@ proc choosePosN*(black: uint64, white: uint64, blackTurn: bool): int =
     - 先読みした結果の最大評価値(value)、最適な手(posN)の2つのフィールドがある
 ]#
 proc negaScout(me: uint64, op: uint64, alpha: int, beta: int, depth: int): SearchResult =
+  # ノード数をインクリメント
+  inc(nodeN)
+
   # 先読み深さが規定値に到達したので評価して返す
   if depth == 0:
     return SearchResult(value: evaluate(me, op), lastPosN: -1)
