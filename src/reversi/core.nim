@@ -129,7 +129,6 @@ proc getPutBoard*(me: uint64, op: uint64): uint64 =
 ]#
 proc getRevBoard*(me: uint64, op: uint64, pos: uint64): uint64 =
   result = 0                          # 反転bit-board
-  let blank: uint64 = not (me or op)  # 空白bit-board
   var 
     i: int
     masked_op, rev_cand: uint64       # 計算に使う

@@ -4,6 +4,7 @@ from core import getPutBoard, getRevBoard
 from util.game import isEnd
 from evaluate import evaluateWithPosition, evaluateWithPutN
 from constants.aiConfig import AI_INF, DEPTH
+from util.file_io import write
 
 proc evaluate(me: uint64, op: uint64): int
 proc negaScout(me: uint64, op: uint64, alpha: int, beta: int, depth: int): SearchResult
@@ -29,8 +30,10 @@ proc choosePosN*(black: uint64, white: uint64, blackTurn: bool): int =
     searchResult: SearchResult = negaScout(me, op, -AI_INF, AI_INF, DEPTH)
     end_time = cpuTime()
   
-  echo "NPS: ", nodeN.float / (end_time - start_time)
-  
+  let nps: int = int(nodeN.float / (end_time - start_time))
+  write("nps.txt", $nps)
+
+   
   result = searchResult.lastPosN
 
 

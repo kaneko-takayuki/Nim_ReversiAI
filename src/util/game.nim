@@ -1,11 +1,6 @@
-from reversi.core import init_board
-from reversi.core import getPutBoard
-from reversi.core import putStone
-from command_line import display
-from command_line import inputPosN
-from command_line import outputSkip
-from command_line import outputEnd
 import strformat
+from reversi.core import init_board, getPutBoard, putStone
+from command_line import display, inputPosN, outputSkip, outputEnd
 
 proc enablePut*(black: uint64, white: uint64, blackTurn: bool, posN: int): bool
 proc skipTurn(black: uint64, white: uint64, blackTurn: bool): bool
