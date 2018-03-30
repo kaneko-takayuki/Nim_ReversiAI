@@ -132,7 +132,7 @@ proc getPutBoard*(me: uint64, op: uint64): uint64 =
 proc getRevBoard*(me: uint64, op: uint64, posN: int): uint64 =
   let pos: uint64 = 1'u shl posN
 
-  result = 0                          # 反転bit-board
+  result = 0  # 反転bit-board
   var masked_op, rev_cand, range_mask, interpose: uint64
 
   # 左右
