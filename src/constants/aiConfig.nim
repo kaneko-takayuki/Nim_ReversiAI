@@ -1,5 +1,5 @@
 const AI_INF*: int = 10000  # Infinity
-const DEPTH*: int = 7       # 探索深さ
+const DEPTH*: int = 9       # 探索深さ
 
 # 石の場所による重み付け
 const VALUE_TABLE*: array[0..63, int] = [ 30, -12,   0,  -1,  -1,   0, -12,  30,

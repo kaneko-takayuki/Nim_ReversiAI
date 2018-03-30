@@ -1,6 +1,5 @@
 import strformat
-from reversi.core import getPutBoard
-from reversi.core import count
+from reversi.core import getPutBoard, count
 
 proc convert_input(c: char): int
 

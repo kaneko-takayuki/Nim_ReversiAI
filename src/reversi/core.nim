@@ -1,3 +1,5 @@
+from util.debug import debugBoard
+
 ## bit-boardの初期化
 proc init_board*(): tuple[black: uint64, white: uint64] =
   const b: uint64 = (1 shl 28) or (1 shl 35)
@@ -127,89 +129,77 @@ proc getPutBoard*(me: uint64, op: uint64): uint64 =
   *返り値<uint64>:
     - 反転bit-board
 ]#
-proc getRevBoard*(me: uint64, op: uint64, pos: uint64): uint64 =
+proc getRevBoard*(me: uint64, op: uint64, posN: int): uint64 =
+  let pos: uint64 = 1'u shl posN
+
   result = 0                          # 反転bit-board
-  var 
-    i: int
-    masked_op, rev_cand: uint64       # 計算に使う
+  var masked_op, rev_cand, range_mask, interpose: uint64
 
   # 左右
   masked_op = op and 0x7e7e_7e7e_7e7e_7e7e'u  # 「左右0、それ以外1」でマスク掛け
   # 右方向
-  i = 1
-  rev_cand = 0
-  while ((pos shl i) and masked_op) != 0:
-    rev_cand = rev_cand or (pos shl i)
-    inc(i)
-  if ((pos shl i) and me) != 0:
-    result = result or rev_cand
+  range_mask = 0x0000_0000_0000_00fe'u shl posN
+  interpose = ((masked_op or (not range_mask)) + 1) and (range_mask and me)
+  if interpose != 0:
+    result = result or ((interpose - 1) and range_mask)
 
   # 左方向
-  i = 1
-  rev_cand = 0
-  while ((pos shr i) and masked_op) != 0:
-    rev_cand = rev_cand or (pos shr i)
-    inc(i)
-  if ((pos shr i) and me) != 0:
-    result = result or rev_cand
+  rev_cand = pos shr 1 and masked_op
+  rev_cand = rev_cand or (masked_op and (rev_cand shr 1))
+  rev_cand = rev_cand or (masked_op and (rev_cand shr 1))
+  rev_cand = rev_cand or (masked_op and (rev_cand shr 1))
+  rev_cand = rev_cand or (masked_op and (rev_cand shr 1))
+  rev_cand = rev_cand or (masked_op and (rev_cand shr 1))
+  result = result or rev_cand and (not (rev_cand shr 1 and me) + 1)
   
   # 上下
   masked_op = op and 0x00ff_ffff_ffff_ff00'u  # 「上下0、それ以外1」でマスク掛け
   # 上方向
-  i = 1
-  rev_cand = 0
-  while ((pos shr (i * 8)) and masked_op) != 0:
-    rev_cand = rev_cand or (pos shr (i * 8))
-    inc(i)
-  if ((pos shr (i * 8)) and me) != 0:
-    result = result or rev_cand
-  
+  rev_cand = pos shr 8 and masked_op
+  rev_cand = rev_cand or (masked_op and (rev_cand shr 8))
+  rev_cand = rev_cand or (masked_op and (rev_cand shr 8))
+  rev_cand = rev_cand or (masked_op and (rev_cand shr 8))
+  rev_cand = rev_cand or (masked_op and (rev_cand shr 8))
+  rev_cand = rev_cand or (masked_op and (rev_cand shr 8))
+  result = result or rev_cand and (not (rev_cand shr 8 and me) + 1)
+
   # 下方向
-  i = 1
-  rev_cand = 0
-  while ((pos shl (i * 8)) and masked_op) != 0:
-    rev_cand = rev_cand or (pos shl (i * 8))
-    inc(i)
-  if ((pos shl (i * 8)) and me) != 0:
-    result = result or rev_cand
-  
+  range_mask = 0x0101_0101_0101_0100'u shl posN
+  interpose = ((masked_op or (not range_mask)) + 1) and (range_mask and me)
+  if interpose != 0:
+    result = result or ((interpose - 1) and range_mask)
+
   # 斜め
   masked_op = op and 0x007e_7e7e_7e7e_7e00'u  # 「上下左右0、それ以外1」でマスク掛け
   # 右上方向
-  i = 1
-  rev_cand = 0
-  while ((pos shl (i * 7)) and masked_op) != 0:
-    rev_cand = rev_cand or (pos shl (i * 7))
-    inc(i)
-  if ((pos shl (i * 7)) and me) != 0:
-    result = result or rev_cand
+  rev_cand = pos shr 7 and masked_op
+  rev_cand = rev_cand or (masked_op and (rev_cand shr 7))
+  rev_cand = rev_cand or (masked_op and (rev_cand shr 7))
+  rev_cand = rev_cand or (masked_op and (rev_cand shr 7))
+  rev_cand = rev_cand or (masked_op and (rev_cand shr 7))
+  rev_cand = rev_cand or (masked_op and (rev_cand shr 7))
+  result = result or rev_cand and (not (rev_cand shr 7 and me) + 1)
   
   # 左上方向
-  i = 1
-  rev_cand = 0
-  while ((pos shl (i * 9)) and masked_op) != 0:
-    rev_cand = rev_cand or (pos shl (i * 9))
-    inc(i)
-  if ((pos shl (i * 9)) and me) != 0:
-    result = result or rev_cand
+  rev_cand = pos shr 9 and masked_op
+  rev_cand = rev_cand or (masked_op and (rev_cand shr 9))
+  rev_cand = rev_cand or (masked_op and (rev_cand shr 9))
+  rev_cand = rev_cand or (masked_op and (rev_cand shr 9))
+  rev_cand = rev_cand or (masked_op and (rev_cand shr 9))
+  rev_cand = rev_cand or (masked_op and (rev_cand shr 9))
+  result = result or rev_cand and (not (rev_cand shr 9 and me) + 1)
   
   # 右下方向
-  i = 1
-  rev_cand = 0
-  while ((pos shr (i * 9)) and masked_op) != 0:
-    rev_cand = rev_cand or (pos shr (i * 9))
-    inc(i)
-  if ((pos shr (i * 9)) and me) != 0:
-    result = result or rev_cand
-  
+  range_mask = 0x8040_2010_0804_0200'u shl posN
+  interpose = ((masked_op or (not range_mask)) + 1) and (range_mask and me)
+  if interpose != 0:
+    result = result or ((interpose - 1) and range_mask)
+
   # 左下方向
-  i = 1
-  rev_cand = 0
-  while ((pos shr (i * 7)) and masked_op) != 0:
-    rev_cand = rev_cand or (pos shr (i * 7))
-    inc(i)
-  if ((pos shr (i * 7)) and me) != 0:
-    result = result or rev_cand
+  range_mask = 0x0102_0408_1020_4080'u shl posN
+  interpose = ((masked_op or (not range_mask)) + 1) and (range_mask and me)
+  if interpose != 0:
+    result = result or ((interpose - 1) and range_mask)
 
 
 #[
@@ -230,13 +220,13 @@ proc putStone*(black: uint64, white: uint64, posN: int, blackTurn: bool): tuple[
   # 反転bit-boardを求める
   if blackTurn:
     # 黒番
-    rev = getRevBoard(black, white, pos)
+    rev = getRevBoard(black, white, posN)
     let new_black = black xor (pos or rev)
     let new_white = white xor rev
     result = (black: new_black, white: new_white)
   else:
     # 白番
-    rev = getRevBoard(white, black, pos)
+    rev = getRevBoard(white, black, posN)
     let new_white = white xor (pos or rev)
     let new_black = black xor rev
     result = (black: new_black, white: new_white)

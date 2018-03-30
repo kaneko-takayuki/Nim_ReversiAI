@@ -80,7 +80,7 @@ proc negaScout(me: uint64, op: uint64, alpha: int, beta: int, depth: int): Searc
     # i番目のポジションに置いて検証
     let
       pos: uint64 = 1'u shl i
-      rev: uint64 = getRevBoard(me, op, pos)
+      rev: uint64 = getRevBoard(me, op, i)
       childMe: uint64 = me xor (pos or rev)
       childOp: uint64 = op xor rev
       childResult: SearchResult = -negaScout(childOp, childMe, -beta, -childAlpha, depth - 1)
