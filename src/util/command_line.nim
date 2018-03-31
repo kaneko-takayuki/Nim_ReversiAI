@@ -54,7 +54,7 @@ proc display*(black: uint64, white: uint64, blackTurn: bool): void =
   *返り値<int>:
     - 入力されたマス番号を返す
 ]#
-proc inputPosN*(black: uint64, white: uint64, blackTurn: bool): int =
+proc inputPosN*(black: uint64, white: uint64, blackTurn: bool, turn: int): int =
   echo "入力: "
   let line: string = readLine(stdin)
   let x: int = convert_input(line[0])

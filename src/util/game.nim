@@ -10,10 +10,13 @@ proc isEnd*(black: uint64, white: uint64): bool
   *概要:
     - ゲームを開始
 ]#
-proc gameStart*(blackInput: proc(black: uint64, white: uint64, blackTurn: bool): int, 
-                whiteInput: proc(black: uint64, white: uint64, blackTurn: bool): int): void {. procvar .} =
-  var (black, white) = init_board()  # 黒白の盤面の状態
-  var blackTurn: bool = true         # 手番(黒ならtrue)
+proc gameStart*(blackInput: proc(black: uint64, white: uint64, blackTurn: bool, turn: int): int, 
+                whiteInput: proc(black: uint64, white: uint64, blackTurn: bool, turn: int): int): void {. procvar .} =
+
+  var
+    (black, white) = init_board()  # 黒白の盤面の状態
+    blackTurn: bool = true         # 手番(黒ならtrue)
+    turn = 0
 
   while true:
     # 盤面の状態を出力
@@ -35,9 +38,9 @@ proc gameStart*(blackInput: proc(black: uint64, white: uint64, blackTurn: bool):
     while true:
       # 黒番か白番かで入力関数が変わる(Player用とか、AI用とか)
       if blackTurn:
-        posN = blackInput(black, white, blackTurn)
+        posN = blackInput(black, white, blackTurn, turn)
       else:
-        posN = whiteInput(black, white, blackTurn)
+        posN = whiteInput(black, white, blackTurn, turn)
 
       echo fmt"posN: {posN}"
 
@@ -50,6 +53,7 @@ proc gameStart*(blackInput: proc(black: uint64, white: uint64, blackTurn: bool):
 
     # ターンを交代する
     blackTurn = not blackTurn
+    inc(turn)
 
 
 #[

@@ -1,5 +1,5 @@
 from constants.aiConfig import VALUE_TABLE
-from reversi.core import getPutBoard
+from reversi.core import getPutBoard, count
 
 #[
   *概要:
@@ -40,3 +40,15 @@ proc evaluateWithPutN*(me: uint64, op: uint64): int =
     score += (((mePutBoard shr i) and 1'u) - ((opPutBoard shr i) and 1'u)).int
   
   result = score
+
+#[
+  *概要:
+    - 石の数による単純評価
+  *パラメータ:
+    - me<uint64>: 自分のbit-board
+    - op<uint64>: 相手のbit-board
+  *返り値<int>:
+    - 石の数の差
+]#
+proc evaluateWithStoneN*(me: uint64, op: uint64): int =
+  result = count(me) - count(op)

@@ -9,8 +9,8 @@ from util.file_io import writeHeaders
 ## メイン関数
 when isMainModule:
   var
-    blackInput: proc(black: uint64, white: uint64, blackTurn: bool): int = choosePosN  # 黒用入力関数
-    whiteInput: proc(black: uint64, white: uint64, blackTurn: bool): int = choosePosN  # 白用入力関数
+    blackInput: proc(black: uint64, white: uint64, blackTurn: bool, turn: int): int = choosePosN  # 黒用入力関数
+    whiteInput: proc(black: uint64, white: uint64, blackTurn: bool, turn: int): int = choosePosN  # 白用入力関数
   
   # プログラム引数をパース
   for kind, key, val in getopt():
@@ -29,7 +29,7 @@ when isMainModule:
       discard
 
   # ヘッダをファイルに出力
-  writeHeaders(CAPACITY_TEST_FILE, "nodeN", "leafN", "nodeN+leafN", "time", "nps")
+  writeHeaders(CAPACITY_TEST_FILE, "turn", "nodeN", "leafN", "nodeN+leafN", "time", "nps")
 
   # ゲームを開始
   gameStart(blackInput, whiteInput)
