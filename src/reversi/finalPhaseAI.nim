@@ -3,16 +3,17 @@ import dto.searchResult
 from core import getPutBoard, getRevBoard, count
 from util.game import isEnd
 from evaluate import evaluateWithStoneN
-from constants.aiConfig import AI_INF, DEPTH, FINAL_OPT, FULL_SEARCH
+from constants.aiConfig import AI_INF, DEPTH, FINAL_OPT, FULL_SEARCH, FINAL
 from constants.config import CAPACITY_TEST_FILE
 from util.file_io import write
 import algorithm, critbits
 
-# ノードの数、葉の数
+# 探索に使用する変数
 var 
   nodeN: int = 0
   leafN: int = 0
-  transPositionTable: CritBitTree[string]
+  transPositionTable: CritBitTree[string]  # 置換表
+  blankTable: array[60 - FINAL, int]       # 空所表
 
 proc firstestFirst(me: uint64, op: uint64, alpha: int, beta: int, depth: int): int
 
@@ -34,6 +35,15 @@ proc finalSearch*(me: uint64, op: uint64, turn: int): int =
     depth = 60 - turn
     enablePut = getPutBoard(me, op)
     start_time = cpuTime()
+    blank = not (me or op)
+  
+  # 空所表を作成する
+  var n: int = 0
+  for posN in 0..63:
+    let pos: uint64 = 1'u shl posN
+    if (blank and pos) != 0:
+      blankTable[n] = posN
+      inc(n)
 
   # 速さ優先探索を行うための配列
   var
@@ -46,7 +56,7 @@ proc finalSearch*(me: uint64, op: uint64, turn: int): int =
   # -----------------------------
 
   # 置ける場所について順番にシミュレーション
-  for posN in 0..63:
+  for posN in blankTable:
     let pos: uint64 = 1'u shl posN
     # 置けない場所はスキップ
     if (enablePut and pos) == 0:
@@ -118,10 +128,10 @@ proc firstestFirst(me: uint64, op: uint64, alpha: int, beta: int, depth: int): i
     return -firstestFirst(op, me, -beta, -alpha, depth)
   
   # -----------------------------
-  # 最終n手最適化
+  # 最終n手最適化(再帰しないで処理)
   # -----------------------------
   if depth <= FINAL_OPT:
-    for posN in 0..63:
+    for posN in blankTable:
       let pos: uint64 = 1'u shl posN
       # 置けない場所はスキップ
       if (enablePut and pos) == 0:
@@ -144,7 +154,7 @@ proc firstestFirst(me: uint64, op: uint64, alpha: int, beta: int, depth: int): i
   # 残り深さが一定未満の時、全探索した方が速い
   # -----------------------------
   if depth <= FULL_SEARCH:
-    for posN in 0..63:
+    for posN in blankTable:
       let pos: uint64 = 1'u shl posN
       # 置けない場所はスキップ
       if (enablePut and pos) == 0:
@@ -180,7 +190,7 @@ proc firstestFirst(me: uint64, op: uint64, alpha: int, beta: int, depth: int): i
     childOps: array[63, uint64]
 
   # 置ける場所について順番にシミュレーション
-  for posN in 0..63:
+  for posN in blankTable:
     let pos: uint64 = 1'u shl posN
     # 置けない場所はスキップ
     if (enablePut and pos) == 0:
@@ -208,7 +218,6 @@ proc firstestFirst(me: uint64, op: uint64, alpha: int, beta: int, depth: int): i
   # -----------------------------
 
   # 探索で使う変数
-  result = -Inf.int  # 最大の評価
   var childAlpha: int = alpha
 
   # 相手の置ける数が少ない順(速さ優先)探索
