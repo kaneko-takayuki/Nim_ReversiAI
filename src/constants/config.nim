@@ -1,1 +1,1 @@
-const CAPACITY_TEST_FILE*: string = "capacitytest.csv"
+const CAPACITY_TEST_FILE*: string = "capacityTest/capacitytest.csv"

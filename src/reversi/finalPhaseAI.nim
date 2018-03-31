@@ -3,16 +3,16 @@ import dto.searchResult
 from core import getPutBoard, getRevBoard, count
 from util.game import isEnd
 from evaluate import evaluateWithStoneN
-from constants.aiConfig import AI_INF, DEPTH
+from constants.aiConfig import AI_INF, DEPTH, FINAL_OPT, FULL_SEARCH
 from constants.config import CAPACITY_TEST_FILE
 from util.file_io import write
-import algorithm
+import algorithm, critbits
 
-type
-  ChildNode = tuple[childEnablePutN: int, childMe: uint64, childOp: uint64, posN: int]
-
-var nodeN: int = 0
-var leafN: int = 0
+# ノードの数、葉の数
+var 
+  nodeN: int = 0
+  leafN: int = 0
+  transPositionTable: CritBitTree[string]
 
 proc firstestFirst(me: uint64, op: uint64, alpha: int, beta: int, depth: int): int
 
@@ -37,7 +37,13 @@ proc finalSearch*(me: uint64, op: uint64, turn: int): int =
 
   # 速さ優先探索を行うための配列
   var
-    childNodes: seq[ChildNode] = @[]
+    childNodes: seq[int] = @[]
+    childMes: array[63, uint64]
+    childOps: array[63, uint64]
+
+  # -----------------------------
+  # 事前探索(効率の良い探索順を求める)
+  # -----------------------------
 
   # 置ける場所について順番にシミュレーション
   for posN in 0..63:
@@ -46,38 +52,42 @@ proc finalSearch*(me: uint64, op: uint64, turn: int): int =
     if (enablePut and pos) == 0:
       continue
     
-    # posN番目のポジションに置いて検証
+    # posN番目のポジションに置いてシミュレーション
+    # 自分がposNに置いた後、相手の置ける数を計算する
     let
       rev: uint64 = getRevBoard(me, op, posN)
       childMe: uint64 = me xor (pos or rev)
       childOp: uint64 = op xor rev
-      childEnablePutN: int = count(getPutBoard(op, me))
+      value: int = count(getPutBoard(op, me))
     
-    # 次の状態を追加(次のノードの情報なので、自分と相手が逆になる)
-    childNodes.add((childEnablePutN: childEnablePutN, childMe: childOp, childOp: childMe, posN: posN))
+    # 下6桁はposNの情報、それ以上は評価値情報(置ける石の数の差)
+    # posNをインデックスとして、次の盤面の状態を保持しておく(後で使う)
+    childNodes.add((value shl 6) + posN)
+    childMes[posN] = childMe
+    childOps[posN] = childOp
 
-  # 相手の置ける数(childEnablePutN)で昇順ソート
-  childNodes.sort(proc (x,y:ChildNode) : int = cmp(x.childEnablePutN, y.childEnablePutN))
+  # 「相手の置ける数」で昇順ソート -> 分岐数が少なくなる
+  childNodes.sort(system.cmp[int])
 
-  # 探索で使う
-  result = Inf.int  # 先読みした結果、評価の最大値とその時の手を返す
-  var 
-    childAlpha: int = -AI_INF
-    maxPosN: int = -1
+  # -----------------------------
+  # 本探索(実際に最後まで読み切っていく)
+  # -----------------------------
+  result = Inf.int  # 評価が最大になる手
+  var childAlpha: int = -AI_INF
 
   # 相手の置ける数が少ない順(速さ優先)探索
   for node in childNodes:
-    let value: int = -firstestFirst(node.childMe, node.childOp, -AI_INF, -childAlpha, depth)
+    let
+      posN: int = node and 0b11_1111  # 下6桁がposN
+      value: int = -firstestFirst(childOps[posN], childMes[posN], -AI_INF, -childAlpha, depth)
     
     # α値(最大値)の更新
     if childAlpha < value:
       childAlpha = value
-      maxPosN = node.posN
+      result = posN
       
   let end_time = cpuTime()
   write(CAPACITY_TEST_FILE, turn, nodeN, leafN, end_time - start_time)
-
-  result = maxPosN
 
 
 #[
@@ -96,17 +106,78 @@ proc firstestFirst(me: uint64, op: uint64, alpha: int, beta: int, depth: int): i
     inc(leafN)
     return evaluateWithStoneN(me, op)
 
-  # --- 以下、ノード ---
+  # -----------------------------
+  # 以下、ノード(葉ならここまで到達しない)
+  # -----------------------------
   inc(nodeN)
+  result = -Inf.int
 
   # 石が置けない時、パスして探索を続ける
   let enablePut = getPutBoard(me, op)
   if enablePut == 0:
     return -firstestFirst(op, me, -beta, -alpha, depth)
+  
+  # -----------------------------
+  # 最終n手最適化
+  # -----------------------------
+  if depth <= FINAL_OPT:
+    for posN in 0..63:
+      let pos: uint64 = 1'u shl posN
+      # 置けない場所はスキップ
+      if (enablePut and pos) == 0:
+        continue
+      
+      # 置いてシミュレーション
+      let
+        rev: uint64 = getRevBoard(me, op, posN)
+        childMe: uint64 = me xor (pos or rev)
+        childOp: uint64 = op xor rev
+        value: int = evaluateWithStoneN(childOp, childMe)
 
+      if result < value:
+        result = value
+      
+    return result
+
+
+  # -----------------------------
+  # 残り深さが一定未満の時、全探索した方が速い
+  # -----------------------------
+  if depth <= FULL_SEARCH:
+    for posN in 0..63:
+      let pos: uint64 = 1'u shl posN
+      # 置けない場所はスキップ
+      if (enablePut and pos) == 0:
+        continue
+      
+      # 置いてシミュレーション
+      let
+        rev: uint64 = getRevBoard(me, op, posN)
+        childMe: uint64 = me xor (pos or rev)
+        childOp: uint64 = op xor rev
+        value: int = -firstestFirst(childOp, childMe, -beta, -alpha, depth - 1)
+      
+      # 枝刈り
+      if beta <= value:
+        return value
+
+      if result < value:
+        result = value
+      
+    return result
+
+  # -----------------------------
+  # 事前探索(効率の良い探索順を求める)
+  # -----------------------------
   # 速さ優先探索を行うための配列
   var
-    childNodes: seq[ChildNode] = @[]
+    n: int = 0  # childNodesの要素数
+    childNodes: array[20, int] = [AI_INF, AI_INF, AI_INF, AI_INF, AI_INF,
+                                  AI_INF, AI_INF, AI_INF, AI_INF, AI_INF,
+                                  AI_INF, AI_INF, AI_INF, AI_INF, AI_INF, 
+                                  AI_INF, AI_INF, AI_INF, AI_INF, AI_INF]
+    childMes: array[63, uint64]
+    childOps: array[63, uint64]
 
   # 置ける場所について順番にシミュレーション
   for posN in 0..63:
@@ -120,21 +191,32 @@ proc firstestFirst(me: uint64, op: uint64, alpha: int, beta: int, depth: int): i
       rev: uint64 = getRevBoard(me, op, posN)
       childMe: uint64 = me xor (pos or rev)
       childOp: uint64 = op xor rev
-      childEnablePutN: int = count(getPutBoard(op, me))
+      value: int = count(getPutBoard(op, me))
     
-    # 次の状態を追加(次のノードの情報なので、自分と相手が逆になる)
-    childNodes.add((childEnablePutN: childEnablePutN, childMe: childOp, childOp: childMe, posN: posN))
+    # 下6桁はposNの情報、それ以上は評価値情報(置ける石の数の差)
+    # posNをインデックスとして、次の盤面の状態を保持しておく(後で使う)
+    childNodes[n] = (value shl 6) + posN
+    childMes[posN] = childMe
+    childOps[posN] = childOp
+    inc(n)
 
-  # 相手の置ける数(childEnablePutN)で昇順ソート
-  childNodes.sort(proc (x,y:ChildNode) : int = cmp(x.childEnablePutN, y.childEnablePutN))
+  # 相手の置ける数で昇順ソート
+  childNodes.sort(system.cmp[int])
+
+  # -----------------------------
+  # 本探索(実際に最後まで読み切っていく)
+  # -----------------------------
 
   # 探索で使う変数
-  result = Inf.int
+  result = -Inf.int  # 最大の評価
   var childAlpha: int = alpha
 
   # 相手の置ける数が少ない順(速さ優先)探索
-  for node in childNodes:
-    let value: int = -firstestFirst(node.childMe, node.childOp, -beta, -childAlpha, depth - 1)
+  for i in 0..<n:
+    let
+      node: int = childNodes[i]
+      posN: int = node and 0b11_1111  # 下6桁がposN
+      value: int = -firstestFirst(childOps[posN], childMes[posN], -beta, -childAlpha, depth - 1)
 
     # 枝刈り
     if beta <= value:

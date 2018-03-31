@@ -6,7 +6,7 @@ proc writeHeaders*(file_path: string, headers: varargs[string]): void =
   block:
     var f: File = open(file_path, FileMode.fmWrite)
     defer: close(f)
-    f.writeLine join(@headers, ",")
+    f.writeLine "\"" & join(@headers, "\",\"") & "\""
 
 #[
   *概要:
