@@ -5,11 +5,15 @@ from util.game import isEnd
 from evaluate import evaluateWithPosition, evaluateWithPutN
 from constants.aiConfig import AI_INF, DEPTH
 from util.file_io import write
+from constants.config import CAPACITY_TEST_FILE
 
 proc evaluate(me: uint64, op: uint64): int
 proc negaScout(me: uint64, op: uint64, alpha: int, beta: int, depth: int): int
 
-var nodeN: int = 0
+var 
+  nodeN: int = 0
+  leafN: int = 0
+
 
 #[
   *概要:
@@ -19,10 +23,11 @@ var nodeN: int = 0
     - white<uint64>:   白bit-board
     - blackTurn<bool>: 黒番ならtrue
   *返り値<int>:
-    - 選択した手を出力
+    - コンピュータが選択したマス番号
 ]#
 proc choosePosN*(black: uint64, white: uint64, blackTurn: bool): int =
   nodeN = 0
+  leafN = 0
   let
     me: uint64 = if blackTurn: black else: white
     op: uint64 = if blackTurn: white else: black
@@ -54,10 +59,8 @@ proc choosePosN*(black: uint64, white: uint64, blackTurn: bool): int =
       childAlpha = value
       maxPosN = posN
 
-  let
-    end_time = cpuTime()
-    nps: int = int(nodeN.float / (end_time - start_time))
-  write("nps.txt", $nps)
+  let end_time = cpuTime()
+  write(CAPACITY_TEST_FILE, nodeN, leafN, end_time - start_time)
    
   result = maxPosN
 
@@ -76,16 +79,18 @@ proc choosePosN*(black: uint64, white: uint64, blackTurn: bool): int =
     - 先読みした結果の最大評価値(value)、最適な手(posN)の2つのフィールドがある
 ]#
 proc negaScout(me: uint64, op: uint64, alpha: int, beta: int, depth: int): int =
-  # ノード数をインクリメント
-  inc(nodeN)
-
-  # 先読み深さが規定値に到達したので評価して返す
+  # 先読み深さが規定値に到達したので評価して返す(葉)
   if depth == 0:
+    inc(leafN)
     return evaluate(me, op)
   
-  # 両者が置けない状況になったらゲームは終了なので、石数で評価して返す
+  # 両者が置けない状況になったらゲームは終了なので、石数で評価して返す(葉)
   if isEnd(me, op):
+    inc(leafN)
     return evaluate(me, op)
+  
+  # --- 以下、ノード ---
+  inc(nodeN)
   
   # 石が置けない時、パスして探索を続ける
   let enablePut = getPutBoard(me, op)

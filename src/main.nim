@@ -3,6 +3,8 @@ import parseopt2
 from util.game import gameStart
 from util.command_line import inputPosN
 from reversi.ai import choosePosN
+from constants.config import CAPACITY_TEST_FILE
+from util.file_io import writeHeaders
 
 ## メイン関数
 when isMainModule:
@@ -25,6 +27,9 @@ when isMainModule:
       if key == "w" and val == "ai": whiteInput = choosePosN
     of cmdArgument, cmdEnd:
       discard
+
+  # ヘッダをファイルに出力
+  writeHeaders(CAPACITY_TEST_FILE, "nodeN", "leafN", "nodeN+leafN", "time", "nps")
 
   # ゲームを開始
   gameStart(blackInput, whiteInput)
