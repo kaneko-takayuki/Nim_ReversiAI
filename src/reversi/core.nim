@@ -230,3 +230,15 @@ proc putStone*(black: uint64, white: uint64, posN: int, blackTurn: bool): tuple[
     let new_white = white xor (pos or rev)
     let new_black = black xor rev
     result = (black: new_black, white: new_white)
+
+#[
+  *概要:
+    - 盤面をハッシュ化する(衝突したらドンマイ)
+  *パラメータ:
+    - me<uint64>: 自分のbit-board
+    - op<uint64>: 相手のbit-board
+  *返り値<int>:
+    - 盤面ハッシュ
+]#
+proc hashBoard*(me: uint64, op: uint64): string =
+  result = $me & $op

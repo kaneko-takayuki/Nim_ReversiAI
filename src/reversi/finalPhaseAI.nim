@@ -1,6 +1,7 @@
 import times
+import strutils
 import dto.searchResult
-from core import getPutBoard, getRevBoard, count
+from core import getPutBoard, getRevBoard, count, hashBoard
 from util.game import isEnd
 from evaluate import evaluateWithStoneN
 from constants.aiConfig import AI_INF, DEPTH, FINAL_OPT, FULL_SEARCH, FINAL
@@ -12,7 +13,7 @@ import algorithm, critbits
 var 
   nodeN: int = 0
   leafN: int = 0
-  transPositionTable: CritBitTree[string]  # 置換表
+  transPositionTable: CritBitTree[int]   # 置換表
   blankTable: array[60 - FINAL, int]       # 空所表
 
 proc firstestFirst(me: uint64, op: uint64, alpha: int, beta: int, depth: int): int
@@ -46,8 +47,12 @@ proc finalSearch*(me: uint64, op: uint64, turn: int): int =
       inc(n)
 
   # 速さ優先探索を行うための配列
+  n = 0  # childNodesの要素数
   var
-    childNodes: seq[int] = @[]
+    childNodes: array[20, int] = [AI_INF, AI_INF, AI_INF, AI_INF, AI_INF,
+                                  AI_INF, AI_INF, AI_INF, AI_INF, AI_INF,
+                                  AI_INF, AI_INF, AI_INF, AI_INF, AI_INF, 
+                                  AI_INF, AI_INF, AI_INF, AI_INF, AI_INF]
     childMes: array[63, uint64]
     childOps: array[63, uint64]
 
@@ -72,9 +77,10 @@ proc finalSearch*(me: uint64, op: uint64, turn: int): int =
     
     # 下6桁はposNの情報、それ以上は評価値情報(置ける石の数の差)
     # posNをインデックスとして、次の盤面の状態を保持しておく(後で使う)
-    childNodes.add((value shl 6) + posN)
+    childNodes[n] = (value shl 6) + posN
     childMes[posN] = childMe
     childOps[posN] = childOp
+    inc(n)
 
   # 「相手の置ける数」で昇順ソート -> 分岐数が少なくなる
   childNodes.sort(system.cmp[int])
@@ -86,8 +92,9 @@ proc finalSearch*(me: uint64, op: uint64, turn: int): int =
   var childAlpha: int = -AI_INF
 
   # 相手の置ける数が少ない順(速さ優先)探索
-  for node in childNodes:
+  for i in 0..<n:
     let
+      node: int = childNodes[i]
       posN: int = node and 0b11_1111  # 下6桁がposN
       value: int = -firstestFirst(childOps[posN], childMes[posN], -AI_INF, -childAlpha, depth)
     
@@ -177,6 +184,13 @@ proc firstestFirst(me: uint64, op: uint64, alpha: int, beta: int, depth: int): i
     return result
 
   # -----------------------------
+  # 置換表による探索
+  # -----------------------------
+  let hash: string = hashBoard(me, op)
+  if transPositionTable.contains(hash):
+    return transPositionTable[hash]
+
+  # -----------------------------
   # 事前探索(効率の良い探索順を求める)
   # -----------------------------
   # 速さ優先探索を行うための配列
@@ -238,3 +252,5 @@ proc firstestFirst(me: uint64, op: uint64, alpha: int, beta: int, depth: int): i
     # 最大値の更新
     if result < value:
       result = value
+
+  transPositionTable[hash] = result
