@@ -1,6 +1,7 @@
 import strformat
 from reversi.core import init_board, getPutBoard, putStone
 from command_line import display, inputPosN, outputSkip, outputEnd
+from constants.benchmarkFFO import BENCHMARK_N, INIT_BLACK_BOARD, INIT_WHITE_BOARD, INIT_BLACK_TURN, INIT_TURN_N
 
 proc enablePut*(black: uint64, white: uint64, blackTurn: bool, posN: int): bool
 proc skipTurn(black: uint64, white: uint64, blackTurn: bool): bool
@@ -11,12 +12,20 @@ proc isEnd*(black: uint64, white: uint64): bool
     - ゲームを開始
 ]#
 proc gameStart*(blackInput: proc(black: uint64, white: uint64, blackTurn: bool, turn: int): int, 
-                whiteInput: proc(black: uint64, white: uint64, blackTurn: bool, turn: int): int): void {. procvar .} =
+                whiteInput: proc(black: uint64, white: uint64, blackTurn: bool, turn: int): int,
+                initBenchmarkFFO: int = -1): void {. procvar .} =
 
   var
     (black, white) = init_board()  # 黒白の盤面の状態
     blackTurn: bool = true         # 手番(黒ならtrue)
     turn = 0
+
+  # initBenchmarkFFOが-1以外なら、初期状態を読み込む
+  if 0 <= initBenchmarkFFO and initBenchmarkFFO < BENCHMARK_N:
+    black = INIT_BLACK_BOARD[initBenchmarkFFO]
+    white = INIT_WHITE_BOARD[initBenchmarkFFO]
+    blackTurn = INIT_BLACK_TURN[initBenchmarkFFO]
+    turn = INIT_TURN_N[initBenchmarkFFO]
 
   while true:
     # 盤面の状態を出力
