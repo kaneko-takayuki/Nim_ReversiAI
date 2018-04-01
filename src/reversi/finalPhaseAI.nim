@@ -19,7 +19,6 @@ var
   sumCollisionN*: int = 0  # 合計衝突回数(検証用)
   sumTime*: float = 0      # 探索の合計時間(検証用)
   transPositionTableMask: uint64 = (TRANSPOSITION_N - 1)
-  transPositionExistTable: array[TRANSPOSITION_N, bool]  # keyに対応する置換情報が存在するか
   transPositionLowerTable: array[TRANSPOSITION_N, int]   # 置換表(lower)
   transPositionUpperTable: array[TRANSPOSITION_N, int]   # 置換表(upper)
   transPositionMe: array[TRANSPOSITION_N, uint64]        # ハッシュ衝突時、meを確認してmeも同じなら同一盤面と見なす
@@ -59,7 +58,6 @@ proc hash(me: uint64, op: uint64): uint64 =
 ]#
 proc initTransPositionTable*(): void =
   for i in 0'u64..<TRANSPOSITION_N:
-    transPositionExistTable[i] = false
     transPositionLowerTable[i] = -AI_INF
     transPositionUpperTable[i] = AI_INF
     transPositionMe[i] = 0
@@ -253,11 +251,17 @@ proc fastestFirst(me: uint64, op: uint64, alpha: int, beta: int, depth: int): in
   # -----------------------------
   # 5. 置換表による重複盤面の探索
   # -----------------------------
-  var lower, upper: int
+  var
+    lower: int = -AI_INF
+    upper: int = AI_INF
   let tableKey = hash(me, op)  # 現在の盤面のハッシュ値
 
-  # 盤面ハッシュ値と自分のボードが同じものは同一と見なす
-  if transPositionExistTable[tableKey] and transPositionMe[tableKey] == me and transPositionOp[tableKey] == op:
+  if transPositionMe[tableKey] == 0:
+    # tableKeyに対応する置換情報が登録されていない
+    transPositionMe[tableKey] = me
+    transPositionOp[tableKey] = op
+  elif transPositionMe[tableKey] == me and transPositionOp[tableKey] == op:
+    # 盤面ハッシュ値と自分のボードが同じものは同一と見なす
     lower = transPositionLowerTable[tableKey]  # この盤面の下限値
     upper = transPositionUpperTable[tableKey]  # この盤面の上限値
 
@@ -271,15 +275,12 @@ proc fastestFirst(me: uint64, op: uint64, alpha: int, beta: int, depth: int): in
     if lower == upper:
       return lower
   else:
-    # この盤面のハッシュ値に該当するデータが無かったか、ハッシュが衝突した
-    # -> 置換表を上書きする
-    transPositionExistTable[tableKey] = true
+    # ハッシュの衝突
     transPositionMe[tableKey] = me
     transPositionOp[tableKey] = op
-    lower = -AI_INF
-    upper = AI_INF
-    transPositionLowerTable[tableKey] = lower
-    transPositionUpperTable[tableKey] = upper
+    transPositionLowerTable[tableKey] = -AI_INF
+    transPositionUpperTable[tableKey] = AI_INF
+    inc(collisionN)
 
   # -----------------------------
   # 6. 事前探索(効率の良い探索順を求める)
