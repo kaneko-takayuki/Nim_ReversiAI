@@ -1,6 +1,6 @@
 from reversi.middlePhaseAI import middleSearch
 from reversi.finalPhaseAI import finalSearch
-from constants.aiConfig import FINAL
+from constants.aiConfig import FINAL, benchmarkTestFlag
 
 #[
   *概要:
@@ -18,7 +18,7 @@ proc choosePosN*(black: uint64, white: uint64, blackTurn: bool, turn: int): int 
     me: uint64 = if blackTurn: black else: white
     op: uint64 = if blackTurn: white else: black
 
-  if turn < FINAL:
+  if (not benchmarkTestFlag) and turn < FINAL:
     result = middleSearch(me, op, turn)
   else:
     result = finalSearch(me, op, turn)

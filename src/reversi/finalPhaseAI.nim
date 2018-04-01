@@ -1,14 +1,13 @@
 import times
 import strformat
 import strutils
-import dto.searchResult
-from core import getPutBoard, getRevBoard, count
-from util.game import isEnd
-from evaluate import evaluateWithStoneN
-from constants.aiConfig import AI_INF, DEPTH, FULL_SEARCH, FINAL, TRANSPOSITION_N
-from constants.config import CAPACITY_TEST_FILE
-from util.file_io import write
 import algorithm
+from core import getPutBoard, getRevBoard, count
+from evaluate import evaluateWithStoneN
+from constants.config import CAPACITY_TEST_FILE
+from constants.aiConfig import AI_INF, DEPTH, FULL_SEARCH, FINAL, TRANSPOSITION_N
+from util.game import isEnd
+from util.file_io import write
 
 proc fastestFirst(me: uint64, op: uint64, alpha: int, beta: int, depth: int): int
 
@@ -19,12 +18,14 @@ var
   collisionN: int          # 衝突回数(検証用)
   sumCollisionN*: int = 0  # 合計衝突回数(検証用)
   sumTime*: float = 0      # 探索の合計時間(検証用)
+  transPositionTableMask: uint64 = (TRANSPOSITION_N - 1)
   transPositionExistTable: array[TRANSPOSITION_N, bool]  # keyに対応する置換情報が存在するか
   transPositionLowerTable: array[TRANSPOSITION_N, int]   # 置換表(lower)
   transPositionUpperTable: array[TRANSPOSITION_N, int]   # 置換表(upper)
-  transPositionMe: array[TRANSPOSITION_N, uint64]        # ハッシュ衝突時、Meを確認してMeも同じなら同一盤面と見なす
-  blankN: int = 0                    # 空所の数
-  blankPosN: array[60 - FINAL, int]  # 空所表
+  transPositionMe: array[TRANSPOSITION_N, uint64]        # ハッシュ衝突時、meを確認してmeも同じなら同一盤面と見なす
+  transPositionOp: array[TRANSPOSITION_N, uint64]        # ハッシュ衝突時、opを確認してopも同じなら同一盤面と見なす
+  blankN: int = 0            # 空所の数
+  blankPosN: array[60, int]  # 空所表
 
 #[
   *概要:
@@ -45,7 +46,7 @@ proc hash(me: uint64, op: uint64): uint64 =
     opHash2 = ((op and 0x0000_0000_ffff_0000'u) shr 16) * 361
     opHash3 = ((op and 0x0000_ffff_0000_0000'u) shr 32) * 6859
     ophash4 = ((op and 0xffff_0000_0000_0000'u) shr 48) * 130321
-  result = (meHash1 + meHash2 + meHash3 + mehash4 + opHash1 + opHash2 + opHash3 + opHash4) and 0xff_ffff
+  result = (meHash1 + meHash2 + meHash3 + mehash4 + opHash1 + opHash2 + opHash3 + opHash4) and transPositionTableMask
 
 
 #[
@@ -62,6 +63,7 @@ proc initTransPositionTable*(): void =
     transPositionLowerTable[i] = -AI_INF
     transPositionUpperTable[i] = AI_INF
     transPositionMe[i] = 0
+    transPositionOp[i] = 0
 
 
 #[
@@ -255,7 +257,7 @@ proc fastestFirst(me: uint64, op: uint64, alpha: int, beta: int, depth: int): in
   let tableKey = hash(me, op)  # 現在の盤面のハッシュ値
 
   # 盤面ハッシュ値と自分のボードが同じものは同一と見なす
-  if transPositionExistTable[tableKey] and transPositionMe[tableKey] == me:
+  if transPositionExistTable[tableKey] and transPositionMe[tableKey] == me and transPositionOp[tableKey] == op:
     lower = transPositionLowerTable[tableKey]  # この盤面の下限値
     upper = transPositionUpperTable[tableKey]  # この盤面の上限値
 
@@ -273,8 +275,11 @@ proc fastestFirst(me: uint64, op: uint64, alpha: int, beta: int, depth: int): in
     # -> 置換表を上書きする
     transPositionExistTable[tableKey] = true
     transPositionMe[tableKey] = me
+    transPositionOp[tableKey] = op
     lower = -AI_INF
     upper = AI_INF
+    transPositionLowerTable[tableKey] = lower
+    transPositionUpperTable[tableKey] = upper
 
   # -----------------------------
   # 6. 事前探索(効率の良い探索順を求める)

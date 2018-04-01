@@ -2,13 +2,13 @@ import os
 import strutils
 import strformat
 import parseopt2
+from reversi.ai import choosePosN
+from reversi.finalPhaseAI import sumCollisionN, initTransPositionTable, sumTime
+from constants.config import CAPACITY_TEST_FILE
+from constants.aiConfig import TRANSPOSITION_N, benchmarkTestFlag
 from util.game import gameStart
 from util.command_line import inputPosN
-from reversi.ai import choosePosN
-from reversi.finalPhaseAI import initTransPositionTable
-from constants.config import CAPACITY_TEST_FILE
 from util.file_io import writeHeaders
-from reversi.finalPhaseAI import sumCollisionN, sumTime, TRANSPOSITION_N
 
 ## メイン関数
 when isMainModule:
@@ -25,7 +25,9 @@ when isMainModule:
       if key == "black" and val == "ai": blackInput = choosePosN
       if key == "white" and val == "person": whiteInput = inputPosN
       if key == "white" and val == "ai": whiteInput = choosePosN
-      if key == "benchmark": initBenchmarkFFO = ($val).parseInt
+      if key == "benchmark":
+        initBenchmarkFFO = ($val).parseInt
+        benchmarktestFlag = true
     of cmdShortOption:
       if key == "b" and val == "person": blackInput = inputPosN
       if key == "b" and val == "ai": blackInput = choosePosN
