@@ -17,10 +17,9 @@ proc writeHeaders*(file_path: string, headers: varargs[string]): void =
   *返り値<void>:
     - なし
 ]#
-proc write*(file_path: string, turn: int, leafN: int, nodeN: int, time: float): void =
+proc write*(file_path: string, turn: int, leafN: int, nodeN: int, time: float, value: int): void =
   let nps: int = int((leafN.float + nodeN.float) / time)
   block:
     var f: File = open(file_path, FileMode.fmAppend)
     defer: close(f)
-    f.writeLine fmt"{turn},{leafN},{nodeN},{leafN+nodeN},{time},{nps}"
-
+    f.writeLine fmt"{turn},{leafN},{nodeN},{leafN+nodeN},{time},{nps},{value}"

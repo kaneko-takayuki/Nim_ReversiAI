@@ -1,11 +1,14 @@
 import os
 import strutils
+import strformat
 import parseopt2
 from util.game import gameStart
 from util.command_line import inputPosN
 from reversi.ai import choosePosN
+from reversi.finalPhaseAI import initTransPositionTable
 from constants.config import CAPACITY_TEST_FILE
 from util.file_io import writeHeaders
+from reversi.finalPhaseAI import sumCollisionN, sumTime, TRANSPOSITION_N
 
 ## メイン関数
 when isMainModule:
@@ -33,7 +36,14 @@ when isMainModule:
       discard
 
   # ヘッダをファイルに出力
-  writeHeaders(CAPACITY_TEST_FILE, "turn", "nodeN", "leafN", "nodeN+leafN", "time", "nps")
+  writeHeaders(CAPACITY_TEST_FILE, "turn", "nodeN", "leafN", "nodeN+leafN", "time", "nps", "value")
+
+  # 置換表を初期化
+  initTransPositionTable()
 
   # ゲームを開始
   gameStart(blackInput, whiteInput, initBenchmarkFFO)
+
+  echo fmt"# ハッシュリストサイズ: {TRANSPOSITION_N}"
+  echo fmt"# 合計衝突回数: {sumCollisionN}"
+  echo fmt"# 合計探索時間(s): {sumTime}"

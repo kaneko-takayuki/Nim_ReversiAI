@@ -35,7 +35,7 @@ proc middleSearch*(me: uint64, op: uint64, turn: int): int =
   # 探索で使う
   result = Inf.int  # 先読みした結果、評価の最大値とその時の手を返す
   var 
-    childAlpha: int = -AI_INF
+    maxValue: int = -AI_INF
     maxPosN: int = -1
 
   # 置ける場所について順番にシミュレーション
@@ -50,15 +50,15 @@ proc middleSearch*(me: uint64, op: uint64, turn: int): int =
       rev: uint64 = getRevBoard(me, op, posN)
       childMe: uint64 = me xor (pos or rev)
       childOp: uint64 = op xor rev
-      value: int = -negaScout(childOp, childMe, -AI_INF, -childAlpha, DEPTH - 1)
+      value: int = -negaScout(childOp, childMe, -AI_INF, -maxValue, DEPTH - 1)
     
     # α値(最大値0の更新
-    if childAlpha < value:
-      childAlpha = value
+    if maxValue < value:
+      maxValue = value
       maxPosN = posN
 
   let end_time = cpuTime()
-  write(CAPACITY_TEST_FILE, turn, nodeN, leafN, end_time - start_time)
+  write(CAPACITY_TEST_FILE, turn, nodeN, leafN, end_time - start_time, maxValue)
    
   result = maxPosN
 

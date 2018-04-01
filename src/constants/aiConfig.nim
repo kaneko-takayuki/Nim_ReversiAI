@@ -5,9 +5,9 @@ const AI_INF*: int = 1000000000  # Infinity
 const DEPTH*: int = 9            # 探索深さ
 
 ## 終盤関連
-const FINAL*: int = 45           # 終盤に入るターン数
+const FINAL*: int = 38           # 終盤に入るターン数
 const FINAL_OPT*: int = 1        # 最終n手最適化
-const FULL_SEARCH*: int = 7      # 全探索を開始する
+const FULL_SEARCH*: int = 6      # 全探索を開始する
 
 # 石の場所による重み付け
 const VALUE_TABLE*: array[0..63, int] = [ 30, -12,   0,  -1,  -1,   0, -12,  30,
