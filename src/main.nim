@@ -3,14 +3,15 @@ import strutils
 import strformat
 import parseopt2
 from reversi.ai import choosePosN
-from reversi.finalPhaseAI import sumCollisionN, initTransPositionTable, sumTime
+from reversi.middlePhaseAI import middleSumNodeN, middleSumLeafN, middleSumTime
+from reversi.finalPhaseAI import initTransPositionTable, finalSumNodeN, finalSumLeafN, finalSumTime, finalSumCollisionN
 from constants.config import CAPACITY_TEST_FILE
 from constants.aiConfig import TRANSPOSITION_N, benchmarkTestFlag
 from util.game import gameStart
-from util.command_line import inputPosN, outputFinalSearchResult
+from util.command_line import inputPosN, outputMiddleSearchResult, outputFinalSearchResult
 from util.file_io import writeHeaders
 from constants.aiConfig import TRANSPOSITION_N
-from reversi.finalPhaseAI import sumNodeN, sumLeafN, sumTime, sumCollisionN
+
 
 ## メイン関数
 when isMainModule:
@@ -48,4 +49,6 @@ when isMainModule:
   # ゲームを開始
   gameStart(blackInput, whiteInput, initBenchmarkFFO)
 
-  outputFinalSearchResult(sumNodeN, sumLeafN, sumTime, TRANSPOSITION_N, sumCollisionN)
+  # 結果の出力
+  outputMiddleSearchResult(middleSumNodeN, middleSumLeafN, middleSumTime)
+  outputFinalSearchResult(finalSumNodeN, finalSumLeafN, finalSumTime, TRANSPOSITION_N, finalSumCollisionN)

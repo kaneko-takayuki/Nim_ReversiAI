@@ -16,10 +16,10 @@ var
   nodeN: int = 0           # 探索したノードの数(検証用)
   leafN: int = 0           # 探索した葉の数(検証用)
   collisionN: int          # 衝突回数(検証用)
-  sumCollisionN*: int = 0  # 合計衝突回数(検証用)
-  sumTime*: float = 0      # 探索の合計時間(検証用)
-  sumNodeN*: int = 0       # 合計探索ノード数(検証用)
-  sumLeafN*: int = 0       # 合計探索葉数(検証用)
+  finalSumCollisionN*: int = 0  # 合計衝突回数(検証用)
+  finalSumTime*: float = 0      # 探索の合計時間(検証用)
+  finalSumNodeN*: int = 0       # 合計探索ノード数(検証用)
+  finalSumLeafN*: int = 0       # 合計探索葉数(検証用)
   transPositionTableMask: uint64 = (TRANSPOSITION_N - 1)
   transPositionLowerTable: array[TRANSPOSITION_N, int]   # 置換表(lower)
   transPositionUpperTable: array[TRANSPOSITION_N, int]   # 置換表(upper)
@@ -147,7 +147,7 @@ proc finalSearch*(me: uint64, op: uint64, turn: int): int =
     let
       node: int = childNodes[i]
       posN: int = node and 0b11_1111  # 下6桁がposN
-    echo fmt"Sarching posN... {posN}"
+    echo fmt"AI Sarching posN... {posN}"
     let value: int = -fastestFirst(childOps[posN], childMes[posN], -AI_INF, -maxValue, depth)
 
     # α値(最大値)の更新
@@ -159,10 +159,10 @@ proc finalSearch*(me: uint64, op: uint64, turn: int): int =
   write(CAPACITY_TEST_FILE, turn, nodeN, leafN, end_time - start_time, maxValue)
   
   # ハッシュ計測用
-  sumCollisionN = sumCollisionN + collisionN
-  sumTime = sumTime + (end_time - start_time)
-  sumNodeN = sumNodeN + nodeN
-  sumLeafN = sumLeafN + leafN
+  finalSumCollisionN = finalSumCollisionN + collisionN
+  finalSumTime = finalSumTime + (end_time - start_time)
+  finalSumNodeN = finalSumNodeN + nodeN
+  finalSumLeafN = finalSumLeafN + leafN
 
 
 #[

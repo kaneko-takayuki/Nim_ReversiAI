@@ -51,7 +51,7 @@ proc gameStart*(blackInput: proc(black: uint64, white: uint64, blackTurn: bool, 
       else:
         posN = whiteInput(black, white, blackTurn, turn)
 
-      echo fmt"posN: {posN}"
+      echo fmt"choosed posN: {posN}"
 
       if enablePut(black, white, blackTurn, posN):
         break

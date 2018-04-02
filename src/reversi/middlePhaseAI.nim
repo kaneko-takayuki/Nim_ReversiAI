@@ -1,4 +1,5 @@
 import times
+import strformat
 import dto.searchResult
 from core import getPutBoard, getRevBoard
 from util.game import isEnd
@@ -13,6 +14,9 @@ proc negaScout(me: uint64, op: uint64, alpha: int, beta: int, depth: int): int
 var 
   nodeN: int = 0
   leafN: int = 0
+  middleSumNodeN*: int = 0   # 合計探索ノード数(検証用)
+  middleSumLeafN*: int = 0   # 合計探索葉数(検証用)
+  middleSumTime*: float = 0  # 合計探索時間(検証用)
 
 
 #[
@@ -50,7 +54,8 @@ proc middleSearch*(me: uint64, op: uint64, turn: int): int =
       rev: uint64 = getRevBoard(me, op, posN)
       childMe: uint64 = me xor (pos or rev)
       childOp: uint64 = op xor rev
-      value: int = -negaScout(childOp, childMe, -AI_INF, -maxValue, DEPTH - 1)
+    echo fmt"AI Sarching posN... {posN}"
+    let value: int = -negaScout(childOp, childMe, -AI_INF, -maxValue, DEPTH - 1)
     
     # α値(最大値0の更新
     if maxValue < value:
@@ -62,6 +67,10 @@ proc middleSearch*(me: uint64, op: uint64, turn: int): int =
    
   result = maxPosN
 
+  # 検証用
+  middleSumNodeN = middleSumNodeN + nodeN
+  middleSumLeafN = middleSumLeafN + leafN
+  middleSumTime = middleSumTime + (end_time - start_time)
 
 #[
   *概要:
