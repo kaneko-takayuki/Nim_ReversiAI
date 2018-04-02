@@ -8,7 +8,8 @@ const DEPTH*: int = 9            # 探索深さ
 const FINAL*: int = 45           # 終盤に入るターン数
 const FINAL_OPT*: int = 1        # 最終n手最適化
 const FULL_SEARCH*: int = 6      # 全探索を開始する
-const TRANSPOSITION_N*: uint64 = 0x100_0000'u64  # 置換表のサイズ
+const TRANSPOSITION_N*: uint64 = 0x100_0000'u64  # 置換表のサイズ(NOTE: -1したら、必ず繰り下がって下位ビットが1になるようにすること)
+const BLANK_TABLE_N*: int = 24   # 空所表のリストサイズ
 
 var benchmarkTestFlag*: bool = false  # ベンチマーク検証フラグ
 

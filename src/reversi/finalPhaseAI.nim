@@ -5,7 +5,7 @@ import algorithm
 from core import getPutBoard, getRevBoard, count
 from evaluate import evaluateWithStoneN
 from constants.config import CAPACITY_TEST_FILE
-from constants.aiConfig import AI_INF, DEPTH, FULL_SEARCH, FINAL, TRANSPOSITION_N
+from constants.aiConfig import AI_INF, DEPTH, FULL_SEARCH, FINAL, TRANSPOSITION_N, BLANK_TABLE_N
 from util.game import isEnd
 from util.file_io import write
 
@@ -18,13 +18,15 @@ var
   collisionN: int          # 衝突回数(検証用)
   sumCollisionN*: int = 0  # 合計衝突回数(検証用)
   sumTime*: float = 0      # 探索の合計時間(検証用)
+  sumNodeN*: int = 0       # 合計探索ノード数(検証用)
+  sumLeafN*: int = 0       # 合計探索葉数(検証用)
   transPositionTableMask: uint64 = (TRANSPOSITION_N - 1)
   transPositionLowerTable: array[TRANSPOSITION_N, int]   # 置換表(lower)
   transPositionUpperTable: array[TRANSPOSITION_N, int]   # 置換表(upper)
   transPositionMe: array[TRANSPOSITION_N, uint64]        # ハッシュ衝突時、meを確認してmeも同じなら同一盤面と見なす
   transPositionOp: array[TRANSPOSITION_N, uint64]        # ハッシュ衝突時、opを確認してopも同じなら同一盤面と見なす
   blankN: int = 0            # 空所の数
-  blankPosN: array[60, int]  # 空所表
+  blankPosN: array[BLANK_TABLE_N, int]  # 空所表
 
 #[
   *概要:
@@ -145,8 +147,8 @@ proc finalSearch*(me: uint64, op: uint64, turn: int): int =
     let
       node: int = childNodes[i]
       posN: int = node and 0b11_1111  # 下6桁がposN
-      value: int = -fastestFirst(childOps[posN], childMes[posN], -AI_INF, -maxValue, depth)
-    echo posN
+    echo fmt"Sarching posN... {posN}"
+    let value: int = -fastestFirst(childOps[posN], childMes[posN], -AI_INF, -maxValue, depth)
 
     # α値(最大値)の更新
     if maxValue < value:
@@ -159,6 +161,8 @@ proc finalSearch*(me: uint64, op: uint64, turn: int): int =
   # ハッシュ計測用
   sumCollisionN = sumCollisionN + collisionN
   sumTime = sumTime + (end_time - start_time)
+  sumNodeN = sumNodeN + nodeN
+  sumLeafN = sumLeafN + leafN
 
 
 #[
@@ -210,6 +214,8 @@ proc fastestFirst(me: uint64, op: uint64, alpha: int, beta: int, depth: int): in
         rev: uint64 = getRevBoard(me, op, posN)
         childMe: uint64 = me xor (pos or rev)
         childOp: uint64 = op xor rev
+      
+      inc(leafN)
       
       # 再帰関数を呼ばないで、この場で評価して即返す
       return evaluateWithStoneN(childOp, childMe)

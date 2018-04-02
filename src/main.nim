@@ -7,8 +7,10 @@ from reversi.finalPhaseAI import sumCollisionN, initTransPositionTable, sumTime
 from constants.config import CAPACITY_TEST_FILE
 from constants.aiConfig import TRANSPOSITION_N, benchmarkTestFlag
 from util.game import gameStart
-from util.command_line import inputPosN
+from util.command_line import inputPosN, outputFinalSearchResult
 from util.file_io import writeHeaders
+from constants.aiConfig import TRANSPOSITION_N
+from reversi.finalPhaseAI import sumNodeN, sumLeafN, sumTime, sumCollisionN
 
 ## メイン関数
 when isMainModule:
@@ -46,6 +48,4 @@ when isMainModule:
   # ゲームを開始
   gameStart(blackInput, whiteInput, initBenchmarkFFO)
 
-  echo fmt"# ハッシュリストサイズ: {TRANSPOSITION_N}"
-  echo fmt"# 合計衝突回数: {sumCollisionN}"
-  echo fmt"# 合計探索時間(s): {sumTime}"
+  outputFinalSearchResult(sumNodeN, sumLeafN, sumTime, TRANSPOSITION_N, sumCollisionN)

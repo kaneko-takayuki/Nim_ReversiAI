@@ -102,6 +102,19 @@ proc outputEnd*(black: uint64, white: uint64): void =
     echo "引き分け!!"
 
 
+proc outputFinalSearchResult*(sumNodeN: int, sumLeafN: int, sumTime: float, hashListSize: uint64, collisionN: int): void =
+  echo "--------------------------------"
+  echo "【終盤ソルバー結果】"
+  echo fmt"合計探索ノード数:     {sumNodeN}"
+  echo fmt"合計探索葉数:         {sumLeafN}"
+  echo fmt"合計ノード＋葉数:     {sumNodeN + sumLeafN}"
+  echo fmt"合計探索時間(s):      {sumTime}"
+  echo fmt"Node/Sec:             {((sumNodeN + sumleafN).float / sumTime).int}"
+  echo fmt"ハッシュリストサイズ: {hashListSize}"
+  echo fmt"ハッシュ衝突回数:     {collisionN}"
+  echo "--------------------------------"
+
+
 #[
   *概要:
     - 入力された座標を変換
