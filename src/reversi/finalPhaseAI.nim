@@ -100,10 +100,10 @@ proc finalSearch*(me: uint64, op: uint64, turn: int): int =
     childN: int = 0
     childNodes: array[20, int] = [AI_INF, AI_INF, AI_INF, AI_INF, AI_INF,
                                   AI_INF, AI_INF, AI_INF, AI_INF, AI_INF,
-                                  AI_INF, AI_INF, AI_INF, AI_INF, AI_INF, 
+                                  AI_INF, AI_INF, AI_INF, AI_INF, AI_INF,
                                   AI_INF, AI_INF, AI_INF, AI_INF, AI_INF]
-    childMes: array[63, uint64]
-    childOps: array[63, uint64]
+    childMes: array[64, uint64]
+    childOps: array[64, uint64]
 
   # -----------------------------
   # 事前探索(効率の良い探索順を求める)
@@ -302,8 +302,8 @@ proc fastestFirst(me: uint64, op: uint64, alpha: int, beta: int, depth: int): in
                                   AI_INF, AI_INF, AI_INF, AI_INF, AI_INF,
                                   AI_INF, AI_INF, AI_INF, AI_INF, AI_INF, 
                                   AI_INF, AI_INF, AI_INF, AI_INF, AI_INF]
-    childMes: array[63, uint64]  # posNに対応した次盤面の自分の状態のメモ
-    childOps: array[63, uint64]  # posNに対応した次盤面の自分の状態のメモ
+    childMes: array[64, uint64]  # posNに対応した次盤面の自分の状態のメモ
+    childOps: array[64, uint64]  # posNに対応した次盤面の自分の状態のメモ
 
   # 置ける場所について順番にシミュレーション
   for i in 0..<blankN:
